@@ -12,13 +12,13 @@ $ cd $GOPATH/src/github.com/hack4impact/audio-transcription-service
 Install the dependencies
 
 ```
-godep restore
+$ godep restore
 ```
 
 ## Running the app
 
 ```
-go run main.go
+$ go run main.go
 ```
 
 ## License
