@@ -3,15 +3,25 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
 )
 
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/hello/{name}", helloHandler)
 
-	http.Handle("/", r)
+	// add middleware
+	stderrLoggingHandler := func(http.Handler) http.Handler {
+		return handlers.LoggingHandler(os.Stderr, r)
+	}
+	middlewareRouter := alice.New(handlers.CompressHandler, stderrLoggingHandler).Then(r)
+
+	// serve http
+	http.Handle("/", middlewareRouter)
 	http.ListenAndServe(":8080", nil)
 }
 
