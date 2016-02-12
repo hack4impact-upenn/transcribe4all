@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	_ "net/http/pprof" // import for side effects
 	"os"
 
 	"github.com/gorilla/handlers"
