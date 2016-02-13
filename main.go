@@ -36,5 +36,6 @@ func jobHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type audioData struct {
-	AudioURL string `json:"audioURL"`
+	AudioURL       string   `json:"audioURL"`
+	EmailAddresses []string `json:"emailAddresses"`
 }
