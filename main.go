@@ -11,6 +11,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/hello/{name}", helloHandler)
+	r.HandleFunc("/health", healthHandler)
 
 	http.Handle("/", r)
 	http.ListenAndServe(":8080", nil)
@@ -19,4 +20,8 @@ func main() {
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
 	fmt.Fprintf(w, "Hello %s!", args["name"])
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("healthy!"))
 }
