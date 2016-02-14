@@ -14,6 +14,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/hello/{name}", helloHandler)
+	r.HandleFunc("/health", healthHandler)
 
 	// add middleware
 	stderrLoggingHandler := func(http.Handler) http.Handler {
