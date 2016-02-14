@@ -24,16 +24,9 @@ func main() {
 	// serve http
 	http.Handle("/", middlewareRouter)
 	http.ListenAndServe(":8080", nil)
-
-	http.HandleFunc("/health", healthHandler)
-	http.ListenAndServe(":8080", nil)
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
 	fmt.Fprintf(w, "Hello %s!", args["name"])
-}
-
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("healthy!"))
 }
