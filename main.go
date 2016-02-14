@@ -48,5 +48,6 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type transcriptionJobData struct {
-	AudioURL string `json:"audioURL"`
+	AudioURL       string   `json:"audioURL"`
+	EmailAddresses []string `json:"emailAddresses"`
 }
