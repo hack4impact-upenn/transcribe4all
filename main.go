@@ -4,9 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	_ "net/http/pprof" // import for side effects
+	"os"
 
 	"encoding/json"
+	"github.com/gorilla/handlers"
+
 	"github.com/gorilla/mux"
+	"github.com/justinas/alice"
 )
 
 func main() {
@@ -14,7 +18,14 @@ func main() {
 	r.HandleFunc("/hello/{name}", helloHandler)
 	r.HandleFunc("/add_job", jobHandler)
 
-	http.Handle("/", r)
+	// add middleware
+	stderrLoggingHandler := func(http.Handler) http.Handler {
+		return handlers.LoggingHandler(os.Stderr, r)
+	}
+	middlewareRouter := alice.New(handlers.CompressHandler, stderrLoggingHandler).Then(r)
+
+	// serve http
+	http.Handle("/", middlewareRouter)
 	http.ListenAndServe(":8080", nil)
 }
 
