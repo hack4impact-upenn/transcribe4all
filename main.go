@@ -1,14 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof" // import for side effects
 	"os"
 
-	"encoding/json"
 	"github.com/gorilla/handlers"
-
 	"github.com/gorilla/mux"
 	"github.com/justinas/alice"
 )
@@ -16,7 +15,7 @@ import (
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/hello/{name}", helloHandler)
-	r.HandleFunc("/add_job", jobHandler)
+	r.HandleFunc("/add_job", initiateTranscriptionJobHandler)
 
 	// add middleware
 	stderrLoggingHandler := func(http.Handler) http.Handler {
@@ -34,19 +33,21 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello %s!", args["name"])
 }
 
-func jobHandler(w http.ResponseWriter, r *http.Request) {
-	var d audioData
+// initiateTranscriptionJobHandle takes a POST request containing a json object,
+// decodes it into an audioData struct, and returns appropriate message.
+func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
+	var jsonData transcriptionJobData
 
-	if err := json.NewDecoder(r.Body).Decode(&d); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	// unmarshal from the response body directly into our struct
+	if err := json.NewDecoder(r.Body).Decode(&jsonData); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode(d)
+	fmt.Fprintf(w, "Accepted!")
 }
 
-type audioData struct {
+type transcriptionJobData struct {
 	AudioURL       string   `json:"audioURL"`
 	EmailAddresses []string `json:"emailAddresses"`
 }
