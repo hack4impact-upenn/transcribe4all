@@ -1,11 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	_ "net/http/pprof" // import for side effects
 
-	"encoding/json"
 	"github.com/gorilla/mux"
 )
 
