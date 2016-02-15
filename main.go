@@ -15,6 +15,9 @@ import (
 func main() {
 	r := mux.NewRouter()
 	r.HandleFunc("/hello/{name}", helloHandler)
+
+	r.HandleFunc("/health", healthHandler)
+
 	r.HandleFunc("/add_job", initiateTranscriptionJobHandler)
 
 	// add middleware
@@ -31,6 +34,10 @@ func main() {
 func helloHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
 	fmt.Fprintf(w, "Hello %s!", args["name"])
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("healthy!"))
 }
 
 // initiateTranscriptionJobHandle takes a POST request containing a json object,
