@@ -18,7 +18,8 @@ $ godep restore
 ## Running the app
 
 ```
-$ go run main.go
+$ go build
+$ ./audio-transcription-service
 ```
 
 ## License

@@ -1,60 +1,15 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	_ "net/http/pprof" // import for side effects
-	"os"
-
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
-	"github.com/justinas/alice"
 )
 
 func main() {
-	r := mux.NewRouter()
-	r.HandleFunc("/hello/{name}", helloHandler)
-
-	r.HandleFunc("/health", healthHandler)
-
-	r.HandleFunc("/add_job", initiateTranscriptionJobHandler)
-
-	// add middleware
-	stderrLoggingHandler := func(http.Handler) http.Handler {
-		return handlers.LoggingHandler(os.Stderr, r)
-	}
-	middlewareRouter := alice.New(handlers.CompressHandler, stderrLoggingHandler).Then(r)
+	router := NewRouter()
+	middlewareRouter := ApplyMiddleware(router)
 
 	// serve http
 	http.Handle("/", middlewareRouter)
 	http.ListenAndServe(":8080", nil)
-}
-
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	args := mux.Vars(r)
-	fmt.Fprintf(w, "Hello %s!", args["name"])
-}
-
-func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("healthy!"))
-}
-
-// initiateTranscriptionJobHandle takes a POST request containing a json object,
-// decodes it into an audioData struct, and returns appropriate message.
-func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
-	var jsonData transcriptionJobData
-
-	// unmarshal from the response body directly into our struct
-	if err := json.NewDecoder(r.Body).Decode(&jsonData); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	fmt.Fprintf(w, "Accepted!")
-}
-
-type transcriptionJobData struct {
-	AudioURL       string   `json:"audioURL"`
-	EmailAddresses []string `json:"emailAddresses"`
 }
