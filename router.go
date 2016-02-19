@@ -9,11 +9,9 @@ import (
 	"github.com/justinas/alice"
 )
 
-// NewRouter creates and returns a mux.Router with default routes
+// NewRouter creates and returns a mux.Router with default routes.
 func NewRouter() *mux.Router {
 	router := mux.NewRouter()
-	router.HandleFunc("/hello/{name}", helloHandler)
-	router.HandleFunc("/add_job", initiateTranscriptionJobHandler)
 
 	for _, route := range routes {
 		router.
@@ -26,7 +24,8 @@ func NewRouter() *mux.Router {
 	return router
 }
 
-// ApplyMiddleware wraps the router in some middleware
+// ApplyMiddleware wraps the router in some middleware. This middleware includes
+// logging and gzip compression.
 func ApplyMiddleware(router http.Handler) http.Handler {
 	stderrLoggingHandler := func(http.Handler) http.Handler {
 		return handlers.LoggingHandler(os.Stderr, router)
