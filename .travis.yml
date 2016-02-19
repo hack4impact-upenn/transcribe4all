@@ -1,6 +1,11 @@
 language: go
 
-go:
-  - tip
+install:
+  - go get -u github.com/tools/godep
+  - godep restore
+  - go get -u github.com/golang/lint/golint
 
-script: golint ./... && go test -v -race ./...
+script:
+  - golint ./...
+  - go test -v -race ./...
+  - go build -v ./...
