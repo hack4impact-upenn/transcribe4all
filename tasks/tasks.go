@@ -10,53 +10,75 @@ import (
 // Status is the status of the task.
 type Status int
 
+// TaskExecutor executes a series of task functions.
+type TaskExecutor interface {
+	QueueTask(task func() error) string
+	GetTaskStatus(id string) (Status, error)
+	completeTask(id string, task func() error)
+}
+
+type defaultExecuter struct {
+	sync.RWMutex
+	m map[string]Status
+}
+
+// These are some enumerated Status constants.
+// INPROGRESS: Task is still in progress.
+// SUCCESS: Task finished successfully.
+// FAILURE: Task finished unsuccessfully.
+// NOTFOUND: Task could not be found.
 const (
 	INPROGRESS Status = iota
 	SUCCESS
 	FAILURE
+	NOTFOUND
 )
 
-var statuses = struct {
-	sync.RWMutex
-	m map[string]Status
-}{m: make(map[string]Status)}
+// NewTaskExectuer returns a TaskExecutor ready to execute.
+func NewTaskExectuer() TaskExecutor {
+	return &defaultExecuter{m: make(map[string]Status)}
+}
 
-// QueueTask initializes a new task.
-func QueueTask() string { // TODO: add needed arguments eventually
+// QueueTask initializes a new task. It takes a generic task function.
+func (ex *defaultExecuter) QueueTask(task func() error) string {
 	id := generateID(20)
-	go completeTask(id)
+	ex.Lock()
+	ex.m[id] = INPROGRESS
+	ex.Unlock()
+	go ex.completeTask(id, task)
 	return id
 }
 
-// TaskStatus gets the current status of a task.
-func TaskStatus(id string) (Status, error) { // TODO: add needed arguments eventually
-	statuses.RLock()
-	defer statuses.RUnlock()
+// GetTaskStatus gets the current status of a task.
+func (ex *defaultExecuter) GetTaskStatus(id string) (Status, error) {
+	ex.RLock()
+	defer ex.RUnlock()
 
-	if status, ok := statuses.m[id]; ok {
+	if status, ok := ex.m[id]; ok {
 		return status, nil
 	}
-	return -1, errors.New("Invalid id")
-
+	return NOTFOUND, errors.New("Invalid id")
 }
 
-func completeTask(id string) {
+func (ex *defaultExecuter) completeTask(id string, task func() error) {
 	defer func() {
 		if r := recover(); r != nil {
-			statuses.Lock()
-			statuses.m[id] = FAILURE
-			statuses.Unlock()
+			ex.Lock()
+			ex.m[id] = FAILURE
+			ex.Unlock()
 		}
 	}()
-	statuses.Lock()
-	statuses.m[id] = INPROGRESS
-	statuses.Unlock()
 
-	// DO THINGS
+	// Run the task.
+	if err := task(); err != nil {
+		ex.Lock()
+		ex.m[id] = FAILURE
+		ex.Unlock()
+	}
 
-	statuses.Lock()
-	statuses.m[id] = SUCCESS
-	statuses.Unlock()
+	ex.Lock()
+	ex.m[id] = SUCCESS
+	ex.Unlock()
 }
 
 // Borrowed from https://siongui.github.io/2015/04/13/go-generate-random-string/
