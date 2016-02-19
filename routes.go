@@ -15,6 +15,10 @@ type route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+type transcriptionJobData struct {
+	AudioURL string `json:"audioURL"`
+}
+
 var routes = []route{
 	route{
 		"hello",
@@ -27,6 +31,12 @@ var routes = []route{
 		"DELETE",
 		"/add_job",
 		initiateTranscriptionJobHandler,
+	},
+	route{
+		"health",
+		"GET",
+		"/health",
+		healthHandler,
 	},
 }
 
@@ -51,6 +61,6 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(jsonData)
 }
 
-type transcriptionJobData struct {
-	AudioURL string `json:"audioURL"`
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("healthy!"))
 }
