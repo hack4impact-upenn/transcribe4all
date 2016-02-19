@@ -1,4 +1,4 @@
-# audio-transcription-service [![Build Status](https://travis-ci.org/hack4impact/audio-transcription-service.svg?branch=master)](https://travis-ci.org/hack4impact/audio-transcription-service)
+# audio-transcription-service [![Build Status](https://travis-ci.org/hack4impact/audio-transcription-service.svg?branch=master)](https://travis-ci.org/hack4impact/audio-transcription-service) [![GoDoc](https://godoc.org/github.com/hack4impact/audio-transcription-service?status.svg)](https://godoc.org/github.com/hack4impact/audio-transcription-service)
 
 ## Setting up
 
