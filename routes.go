@@ -16,7 +16,8 @@ type route struct {
 }
 
 type transcriptionJobData struct {
-	AudioURL string `json:"audioURL"`
+	AudioURL       string   `json:"audioURL"`
+	EmailAddresses []string `json:"emailAddresses"`
 }
 
 var routes = []route{
@@ -28,7 +29,7 @@ var routes = []route{
 	},
 	route{
 		"initiateTranscriptionJob",
-		"DELETE",
+		"POST",
 		"/add_job",
 		initiateTranscriptionJobHandler,
 	},
@@ -46,19 +47,17 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // initiateTranscriptionJobHandle takes a POST request containing a json object,
-// decodes it into an audioData struct, and returns the struct json-encoded.
+// decodes it into an audioData struct, and returns appropriate message.
 func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	var jsonData transcriptionJobData
 
 	// unmarshal from the response body directly into our struct
 	if err := json.NewDecoder(r.Body).Decode(&jsonData); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// return the struct encoded as json
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	json.NewEncoder(w).Encode(jsonData)
+	fmt.Fprintf(w, "Accepted!")
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
