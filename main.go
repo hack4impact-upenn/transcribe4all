@@ -3,11 +3,13 @@ package main
 import (
 	"net/http"
 	_ "net/http/pprof" // import for side effects
+
+	"github.com/hack4impact/audio-transcription-service/web"
 )
 
 func main() {
-	router := NewRouter()
-	middlewareRouter := ApplyMiddleware(router)
+	router := web.NewRouter()
+	middlewareRouter := web.ApplyMiddleware(router)
 
 	// serve http
 	http.Handle("/", middlewareRouter)
