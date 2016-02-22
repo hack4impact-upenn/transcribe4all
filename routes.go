@@ -3,7 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"net/smtp"
+	"os"
 
 	"github.com/gorilla/mux"
 )
@@ -38,6 +41,12 @@ var routes = []route{
 		"/health",
 		healthHandler,
 	},
+	route{
+		"email",
+		"GET",
+		"/email",
+		emailHandler,
+	},
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
@@ -63,4 +72,29 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("healthy!"))
+}
+
+func emailHandler(w http.ResponseWriter, r *http.Request) {
+	// Set up authentication information.
+	password := os.Getenv("MAIL_PASSWORD")
+
+	auth := smtp.PlainAuth(
+		"",
+		"test4impact@gmail.com",
+		password,
+		"smtp.gmail.com",
+	)
+	// Connect to the server, authenticate, set the sender and recipient,
+	// and send the email all in one step.
+	err := smtp.SendMail(
+		"smtp.gmail.com:25",
+		auth,
+		"test4impact@gmail.org",
+		[]string{"yoninachmany@gmail.com"},
+		[]byte("This is the email body."),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	w.Write([]byte("email!"))
 }
