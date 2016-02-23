@@ -4,9 +4,10 @@ import (
 	"log"
 	"net/smtp"
 	"os"
+	"strings"
 )
 
-func sendEmail(from string, to []string, msg string) {
+func sendEmail(from string, to []string, subject string, body string) {
 	// Set up authentication information.
 	auth := smtp.PlainAuth(
 		"",
@@ -17,14 +18,13 @@ func sendEmail(from string, to []string, msg string) {
 
 	// Connect to the server, authenticate, set the sender and recipient,
 	// and send the email all in one step.
-	err := smtp.SendMail(
-		"smtp.gmail.com:25", auth, from, to, []byte(msg),
-	)
+	msg := []byte("To: " + strings.Join(to, ", ") + "\r\n" +
+		"Subject: " + subject + "\r\n" +
+		"\r\n" +
+		body + "\r\n")
+	err := smtp.SendMail("smtp.gmail.com:25", auth, from, to, msg)
+
 	if err != nil {
 		log.Fatal(err)
 	}
-}
-
-func sendTestEmail() {
-	sendEmail(os.Getenv("MAIL_EMAIL"), []string{"yoninachmany@gmail.com"}, "hi")
 }
