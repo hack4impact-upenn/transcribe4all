@@ -24,3 +24,7 @@ func sendEmail(from string, to []string, msg string) {
 		log.Fatal(err)
 	}
 }
+
+func sendTestEmail() {
+	sendEmail(os.Getenv("MAIL_EMAIL"), []string{"yoninachmany@gmail.com"}, "hi")
+}
