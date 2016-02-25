@@ -10,8 +10,6 @@ func SendEmail(username string, password string, host string, port int, to []str
 	auth := smtp.PlainAuth("", username, password, host)
 
 	// The msg headers should usually include fields such as "From", "To", "Subject", and "Cc".
-	// Sending "Bcc" messages is accomplished by including an email address in
-	// the to parameter but not including it in the msg headers.
 	from := username
 	fromHeader := "From: " + from
 	toHeader := "To: " + strings.Join(to, ", ")
