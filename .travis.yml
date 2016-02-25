@@ -5,6 +5,8 @@ install:
   - godep restore
   - go get -u github.com/golang/lint/golint
   - go get -u github.com/qur/withmock
+  - go get -u github.com/qur/withmock/mocktest
+  - go get -u golang.org/x/tools/cmd/goimports
 
 script:
   - golint ./...
