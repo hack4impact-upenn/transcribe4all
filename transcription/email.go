@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func sendEmail(from string, to []string, subject string, body string) {
+func SendEmail(from string, to []string, subject string, body string) {
 	// Set up authentication information.
 	auth := smtp.PlainAuth(
 		"",
