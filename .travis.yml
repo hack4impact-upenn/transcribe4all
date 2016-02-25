@@ -1,5 +1,9 @@
 language: go
 
+go:
+  - 1.6
+  - tip
+
 install:
   - go get -u github.com/tools/godep
   - godep restore
@@ -10,8 +14,8 @@ install:
 
 script:
   - golint ./...
-  - mocktest -v ./...
   - go build -v ./...
+  - mocktest -v ./...
 
 notifications:
   email: false
