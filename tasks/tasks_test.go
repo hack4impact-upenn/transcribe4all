@@ -14,11 +14,10 @@ func TestTaskErrorLeadsToErrorStatus(t *testing.T) {
 	}
 	ex := NewTaskExectuer()
 	id := ex.QueueTask(errorTask)
-	status, err := ex.GetTaskStatus(id)
+	status := ex.GetTaskStatus(id)
 	for status == INPROGRESS {
-		status, err = ex.GetTaskStatus(id)
+		status = ex.GetTaskStatus(id)
 	}
-	assert.Nil(err)
 	assert.Equal(FAILURE, status)
 }
 
@@ -29,11 +28,10 @@ func TestTaskPanicLeadsToErrorStatus(t *testing.T) {
 	}
 	ex := NewTaskExectuer()
 	id := ex.QueueTask(errorTask)
-	status, err := ex.GetTaskStatus(id)
+	status := ex.GetTaskStatus(id)
 	for status == INPROGRESS {
-		status, err = ex.GetTaskStatus(id)
+		status = ex.GetTaskStatus(id)
 	}
-	assert.Nil(err)
 	assert.Equal(FAILURE, status)
 }
 
@@ -44,11 +42,10 @@ func TestTaskOkLeadsToSuccessStatus(t *testing.T) {
 	}
 	ex := NewTaskExectuer()
 	id := ex.QueueTask(errorTask)
-	status, err := ex.GetTaskStatus(id)
+	status := ex.GetTaskStatus(id)
 	for status == INPROGRESS {
-		status, err = ex.GetTaskStatus(id)
+		status = ex.GetTaskStatus(id)
 	}
-	assert.Nil(err)
 	assert.Equal(SUCCESS, status)
 }
 
@@ -61,7 +58,6 @@ func TestInProgressStatus(t *testing.T) {
 	}
 	ex := NewTaskExectuer()
 	id := ex.QueueTask(errorTask)
-	status, err := ex.GetTaskStatus(id)
-	assert.Nil(err)
+	status := ex.GetTaskStatus(id)
 	assert.Equal(INPROGRESS, status)
 }
