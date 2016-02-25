@@ -1,12 +1,15 @@
 language: go
 
+go:
+  - 1.6
+
 install:
-  - go get -u github.com/tools/godep
-  - godep restore
   - go get -u github.com/golang/lint/golint
 
 script:
-  - golint ./...
+  # this command will run golint on every package but /vendor/
+  - for package in $(go list ./... | grep -v /vendor/); do golint ${package}; done
+  - go vet ./...
   - go test -v -race ./...
   - go build -v ./...
 
