@@ -7,14 +7,12 @@ import (
 	"strings"
 )
 
+// SendEmail authenticates from environment variables and sends email using arguments.
 func SendEmail(from string, to []string, subject string, body string) {
 	// Set up authentication information.
-	auth := smtp.PlainAuth(
-		"",
-		os.Getenv("MAIL_EMAIL"),
-		os.Getenv("MAIL_PASSWORD"),
-		"smtp.gmail.com",
-	)
+	email := os.Getenv("MAIL_EMAIL")
+	password := os.Getenv("MAIL_PASSWORD")
+	auth := smtp.PlainAuth("", email, password, "smtp.gmail.com")
 
 	msg := []byte("To: " + strings.Join(to, ", ") + "\r\n" +
 		"Subject: " + subject + "\r\n" +
