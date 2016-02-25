@@ -16,8 +16,6 @@ func sendEmail(from string, to []string, subject string, body string) {
 		"smtp.gmail.com",
 	)
 
-	// Connect to the server, authenticate, set the sender and recipient,
-	// and send the email all in one step.
 	msg := []byte("To: " + strings.Join(to, ", ") + "\r\n" +
 		"Subject: " + subject + "\r\n" +
 		"\r\n" +
