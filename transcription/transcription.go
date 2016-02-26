@@ -5,8 +5,9 @@ import (
 	"strings"
 )
 
-// SendEmail authenticates, creates message, and sends email using arguments.
-// Host is email server, e.g. "smtp.gmail.com". Port of server required, e.g. 25.
+// SendEmail connects to an email server at host:port, switches to TLS,
+// authenticates on TLS connections using the username and password, and sends
+// an email from address from, to address to, with subject line subject with message body.
 func SendEmail(username string, password string, host string, port int, to []string, subject string, body string) error {
 	from := username
 	auth := smtp.PlainAuth("", username, password, host)
@@ -21,7 +22,6 @@ func SendEmail(username string, password string, host string, port int, to []str
 	return nil
 }
 
-// The msg headers should usually include fields such as "From", "To", "Subject", and "Cc".
 func msgHeaders(from string, to []string, subject string) string {
 	fromHeader := "From: " + from
 	toHeader := "To: " + strings.Join(to, ", ")
