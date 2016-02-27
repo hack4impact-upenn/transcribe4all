@@ -10,8 +10,21 @@
 			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
 		},
 		{
+			"ImportPath": "github.com/gorilla/handlers",
+			"Rev": "b3aff83722cb2ae031a70cae984650e3a16cd20e"
+		},
+		{
 			"ImportPath": "github.com/gorilla/mux",
 			"Rev": "26a6070f849969ba72b72256e9f14cf519751690"
+		},
+		{
+			"ImportPath": "github.com/justinas/alice",
+			"Rev": "78131a09b9e7bcccbb8a99d8e2f2168bb576e67a"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-17-g089c718",
+			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
 		}
 	]
 }
