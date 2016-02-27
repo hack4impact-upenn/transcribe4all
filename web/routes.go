@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/hack4impact/audio-transcription-service/tasks"
 )
 
 type route struct {
@@ -70,34 +71,16 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("healthy!"))
 }
 
-// enum - job status
-type Status int
-
-const (
-	INPROGRESS Status = 1 + iota
-	DONE
-	ERROR
-)
-
 var statuses = [...]string{
 	"In progress",
 	"Done",
 	"Error",
 }
 
-func (s Status) String() string {
-	return statuses[s-1]
-}
+func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
+	args := mux.Vars(r)
 
-func jobStatusHandler(s Status) {
-	switch s {
-	case INPROGRESS:
-		w.Write("Job is in progress.")
-
-	case DONE:
-		w.Write("Job is done.")
-
-	case ERROR:
-		w.Write("Warning: error!")
-	}
+	id := args["id"]
+	status := tasks.DefaultTaskExecuter.GetTaskStatus(id)
+	w.Write([]byte(status.String()))
 }

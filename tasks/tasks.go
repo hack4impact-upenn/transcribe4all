@@ -33,6 +33,24 @@ const (
 	NOTFOUND
 )
 
+var DefaultTaskExecuter = NewTaskExectuer()
+
+func (s Status) String() string {
+	var str string
+
+	switch s {
+	case INPROGRESS:
+		str = "The task is in progress."
+	case SUCCESS:
+		str = "The task was successfully completed."
+	case FAILURE:
+		str = "The task failed."
+	case NOTFOUND:
+		str = "Error: not found"
+	}
+	return str
+}
+
 // NewTaskExectuer returns a TaskExecutor ready to execute.
 func NewTaskExectuer() TaskExecutor {
 	return &defaultExecutor{m: make(map[string]Status)}
