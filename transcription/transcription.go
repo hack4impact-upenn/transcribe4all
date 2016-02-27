@@ -1,7 +1,6 @@
 package transcription
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/smtp"
@@ -39,7 +38,6 @@ func DownloadFileFromURL(url string) error {
 	// https://github.com/thbar/golang-playground/blob/master/download-files.go
 	tokens := strings.Split(url, "/")
 	fileName := tokens[len(tokens)-1]
-	fmt.Println("Downloading", url, "to", fileName)
 
 	// TODO: check file existence first with io.IsExist
 	// Create the file
