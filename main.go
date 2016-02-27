@@ -28,6 +28,9 @@ func main() {
 
 	http.HandleFunc("/health", healthHandler)
 	http.ListenAndServe(":8080", nil)
+
+	http.HandleFunc("/job_status", jobStatusHandler)
+	http.ListenAndServe(":8080", nil)
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
@@ -36,5 +39,37 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("healthy!"))
+	w.Write([]byte("Healthy!"))
+}
+
+// enum - job status
+type Status int
+
+const (
+	INPROGRESS Status = 1 + iota
+	DONE
+	ERROR
+)
+
+var statuses = [...]string{
+	"In progress",
+	"Done",
+	"Error",
+}
+
+func (s Status) String() string {
+	return statuses[s-1]
+}
+
+func jobStatusHandler(s Status) {
+	switch s {
+	case INPROGRESS:
+		w.Write("Job is in progress.")
+
+	case DONE:
+		w.Write("Job is done.")
+
+	case ERROR:
+		w.Write("Warning: error!")
+	}
 }
