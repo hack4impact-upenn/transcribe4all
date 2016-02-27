@@ -1,7 +1,11 @@
 package transcription
 
 import (
+	"fmt"
+	"io"
+	"net/http"
 	"net/smtp"
+	"os"
 	"strings"
 )
 
@@ -28,4 +32,35 @@ func msgHeaders(from string, to []string, subject string) string {
 	subjectHeader := "Subject: " + subject
 	msgHeaders := []string{fromHeader, toHeader, subjectHeader}
 	return strings.Join(msgHeaders, "\r\n")
+}
+
+// DownloadFileFromURL downloads an mp3 file locally from a url.
+func DownloadFileFromURL(url string) error {
+	// https://github.com/thbar/golang-playground/blob/master/download-files.go
+	tokens := strings.Split(url, "/")
+	fileName := tokens[len(tokens)-1]
+	fmt.Println("Downloading", url, "to", fileName)
+
+	// TODO: check file existence first with io.IsExist
+	// Create the file
+	output, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer output.Close()
+
+	// Get the data
+	response, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	// Write the body to file
+	_, err = io.Copy(output, response.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
