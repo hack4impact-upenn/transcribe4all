@@ -32,7 +32,7 @@ $ ./audio-transcription-service
 ## Running tests
 
 ```
-$ go test -v ./...
+$ make test
 ```
 
 ## License
