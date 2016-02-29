@@ -79,8 +79,8 @@ var statuses = [...]string{
 
 func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
-
 	id := args["id"]
+
 	status := tasks.DefaultTaskExecuter.GetTaskStatus(id)
 	w.Write([]byte(status.String()))
 }
