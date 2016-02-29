@@ -29,7 +29,7 @@ var routes = []route{
 		helloHandler,
 	},
 	route{
-		"initiateTranscriptionJob",
+		"add_job",
 		"POST",
 		"/add_job",
 		initiateTranscriptionJobHandler,
