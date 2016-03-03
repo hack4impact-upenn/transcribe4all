@@ -8,6 +8,8 @@ install:
   - go get -u github.com/qur/withmock
   - go get -u github.com/qur/withmock/mocktest
   - go get -u golang.org/x/tools/cmd/goimports
+  - go get -u github.com/tools/godep
+  - godep restore
 
 script:
   # this command will run golint on every package but /vendor/
