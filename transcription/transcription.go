@@ -39,7 +39,6 @@ func DownloadFileFromURL(url string) error {
 	tokens := strings.Split(url, "/")
 	fileName := tokens[len(tokens)-1]
 
-	// TODO: check file existence first with io.IsExist
 	// Create the file
 	output, err := os.Create(fileName)
 	if err != nil {
