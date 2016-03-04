@@ -1,10 +1,14 @@
 {
 	"ImportPath": "github.com/hack4impact/audio-transcription-service",
-	"GoVersion": "go1.5",
+	"GoVersion": "go1.6",
 	"Packages": [
 		"./..."
 	],
 	"Deps": [
+		{
+			"ImportPath": "github.com/golang/mock/gomock",
+			"Rev": "bd3c8e81be01eef76d4b503f5e687d2d1354d2d9"
+		},
 		{
 			"ImportPath": "github.com/gorilla/context",
 			"Rev": "1c83b3eabd45b6d76072b66b746c20815fb2872d"
@@ -20,6 +24,11 @@
 		{
 			"ImportPath": "github.com/justinas/alice",
 			"Rev": "78131a09b9e7bcccbb8a99d8e2f2168bb576e67a"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.0-17-g089c718",
+			"Rev": "089c7181b8c728499929ff09b62d3fdd8df8adff"
 		}
 	]
 }
