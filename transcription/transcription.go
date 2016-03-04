@@ -33,7 +33,7 @@ func msgHeaders(from string, to []string, subject string) string {
 	return strings.Join(msgHeaders, "\r\n")
 }
 
-// DownloadFileFromURL downloads an mp3 file locally from a url.
+// DownloadFileFromURL locally downloads an audio file stored at url.
 func DownloadFileFromURL(url string) error {
 	// https://github.com/thbar/golang-playground/blob/master/download-files.go
 	tokens := strings.Split(url, "/")
