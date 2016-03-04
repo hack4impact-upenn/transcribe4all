@@ -47,7 +47,7 @@ func DownloadFileFromURL(url string) error {
 	}
 	defer output.Close()
 
-	// Get the data
+	// Get file contents
 	response, err := http.Get(url)
 	if err != nil {
 		return err
