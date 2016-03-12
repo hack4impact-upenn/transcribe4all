@@ -36,11 +36,7 @@ func msgHeaders(from string, to []string, subject string) string {
 // DownloadFileFromURL locally downloads an audio file stored at url.
 func DownloadFileFromURL(url string) error {
 	// Taken from https://github.com/thbar/golang-playground/blob/master/download-files.go
-	tokens := strings.Split(url, "/")
-	fileName := tokens[len(tokens)-1]
-
-	// Create the file
-	output, err := os.Create(fileName)
+	output, err := os.Create(fileNameFromURL(url))
 	if err != nil {
 		return err
 	}
@@ -60,4 +56,10 @@ func DownloadFileFromURL(url string) error {
 	}
 
 	return nil
+}
+
+func fileNameFromURL(url string) string {
+	tokens := strings.Split(url, "/")
+	fileName := tokens[len(tokens)-1]
+	return fileName
 }
