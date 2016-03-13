@@ -7,6 +7,7 @@ install:
   - go get -u github.com/golang/lint/golint
   - go get -u github.com/qur/withmock
   - go get -u github.com/qur/withmock/mocktest
+  - go get -u golang.org/x/tools/cmd/goimports
   - go get -u github.com/tools/godep
   - godep restore
 
