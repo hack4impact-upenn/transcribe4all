@@ -67,7 +67,7 @@ func TestConvertAudioIntoRequiredFormat(t *testing.T) {
 	cmd := &exec.Cmd{}
 
 	gomock.InOrder(
-		exec.EXPECT().Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".wav").Times(1),
+		exec.EXPECT().Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".wav").Times(1).Return(cmd),
 		cmd.EXPECT().Run().Times(1),
 	)
 
