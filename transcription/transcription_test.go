@@ -75,19 +75,21 @@ func TestConvertAudioIntoRequiredFormat(t *testing.T) {
 	assert.NoError(err)
 }
 
-// func TestConvertAudioIntoRequiredFormatReturnsError(t *testing.T) {
-// 	assert := assert.New(t)
-// 	ctrl := gomock.NewController(t)
-// 	defer ctrl.Finish()
-//
-// 	// Setup the mock package
-// 	exec.MOCK().SetController(ctrl)
-//
-// 	gomock.InOrder(
-// 		exec.EXPECT().Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".wav"),
-// 		exec.EXPECT().Cmd.Run().Return(errors.New("Bad!")),
-// 	)
-//
-// 	err := ConvertAudioIntoRequiredFormat(fn)
-// 	assert.Error(err)
-// }
+func TestConvertAudioIntoRequiredFormatReturnsError(t *testing.T) {
+	assert := assert.New(t)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// Setup the mock package
+	exec.MOCK().SetController(ctrl)
+
+	cmd := &exec.Cmd{}
+
+	gomock.InOrder(
+		exec.EXPECT().Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".wav").Times(1).Return(cmd),
+		cmd.EXPECT().Run().Times(1).Return(errors.New("Bad!")),
+	)
+
+	err := ConvertAudioIntoRequiredFormat(fn)
+	assert.Error(err)
+}
