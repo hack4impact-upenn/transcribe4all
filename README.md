@@ -29,7 +29,17 @@ $ go build
 $ ./audio-transcription-service
 ```
 
-## Running tests
+## Tests
+
+Install the testing dependencies
+
+```
+$ go get -u github.com/qur/withmock
+$ go get -u github.com/qur/withmock/mocktest
+$ go get -u golang.org/x/tools/cmd/goimports
+```
+
+Run the tests
 
 ```
 $ make test
