@@ -1,7 +1,10 @@
 package transcription
 
 import (
+	"io"
 	"net/smtp"
+	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -28,4 +31,26 @@ func msgHeaders(from string, to []string, subject string) string {
 	subjectHeader := "Subject: " + subject
 	msgHeaders := []string{fromHeader, toHeader, subjectHeader}
 	return strings.Join(msgHeaders, "\r\n")
+}
+
+// Transcribe a given file using a Sphinx jar. The fileName should be in
+// "name.wav" format and the jarName should be in "name.jar" format.
+func startTranscription(fileName string, jarName string) error {
+
+	cmd := exec.Command("java", "-jar", jarName, fileName)
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+	//Currently copying output to Stdout
+	if _, err := io.Copy(os.Stdout, stdout); err != nil {
+		return err
+	}
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
+	return nil
 }
