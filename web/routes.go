@@ -29,7 +29,7 @@ var routes = []route{
 		helloHandler,
 	},
 	route{
-		"initiateTranscriptionJob",
+		"add_job",
 		"POST",
 		"/add_job",
 		initiateTranscriptionJobHandler,
@@ -80,8 +80,8 @@ var statuses = [...]string{
 // jobStatusHandler takes a POST request and returns status message.
 func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
-
 	id := args["id"]
+
 	status := tasks.DefaultTaskExecuter.GetTaskStatus(id)
 	w.Write([]byte(status.String()))
 }
