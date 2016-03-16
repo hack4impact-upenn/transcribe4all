@@ -43,7 +43,7 @@ var routes = []route{
 	route{
 		"job_status",
 		"GET",
-		"/job_status",
+		"/job_status/{id}",
 		jobStatusHandler,
 	},
 }
@@ -77,6 +77,7 @@ var statuses = [...]string{
 	"Error",
 }
 
+// jobStatusHandler takes a POST request and returns status message.
 func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
 	id := args["id"]
