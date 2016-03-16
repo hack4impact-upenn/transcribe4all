@@ -2,7 +2,7 @@ package transcription
 
 import (
 	"errors"
-	"net/http" // mock
+	// "net/http"
 	"net/smtp" // mock
 	"testing"
 
@@ -19,7 +19,7 @@ var (
 	to       = []string{"to@email.com"}
 	subject  = "subject"
 	body     = "body"
-	url      = "http://hack4impact.org/audio.mp3"
+	// url      = "http://hack4impact.org/audio.mp3"
 )
 
 func TestSendEmail(t *testing.T) {
@@ -56,22 +56,22 @@ func TestSendEmailReturnsError(t *testing.T) {
 	assert.Error(err)
 }
 
-func TestDownloadFileFromURL(t *testing.T) {
-	assert := assert.New(t)
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	// Setup the mock package
-	http.MOCK().SetController(ctrl)
-
-	gomock.InOrder(
-		http.EXPECT().Get(url).Times(1),
-	)
-
-	err := DownloadFileFromURL(url)
-	assert.NoError(err)
-}
-
+// func TestDownloadFileFromURL(t *testing.T) {
+// 	assert := assert.New(t)
+// 	ctrl := gomock.NewController(t)
+// 	defer ctrl.Finish()
+//
+// 	// Setup the mock package
+// 	http.MOCK().SetController(ctrl)
+//
+// 	gomock.InOrder(
+// 		http.EXPECT().Get(url).Times(1),
+// 	)
+//
+// 	err := DownloadFileFromURL(url)
+// 	assert.NoError(err)
+// }
+//
 // func TestDownloadFileFromURLReturnsError(t *testing.T) {
 // 	assert := assert.New(t)
 // 	ctrl := gomock.NewController(t)
