@@ -12,6 +12,7 @@ func TestTaskErrorLeadsToErrorStatus(t *testing.T) {
 	errorTask := func() error {
 		return errors.New("This is the error text.")
 	}
+
 	ex := NewTaskExecuter()
 	id := ex.QueueTask(errorTask)
 	status := ex.GetTaskStatus(id)
@@ -26,6 +27,7 @@ func TestTaskPanicLeadsToErrorStatus(t *testing.T) {
 	errorTask := func() error {
 		panic("AHHH!!!")
 	}
+
 	ex := NewTaskExecuter()
 	id := ex.QueueTask(errorTask)
 	status := ex.GetTaskStatus(id)
@@ -40,6 +42,7 @@ func TestTaskOkLeadsToSuccessStatus(t *testing.T) {
 	errorTask := func() error {
 		return nil
 	}
+
 	ex := NewTaskExecuter()
 	id := ex.QueueTask(errorTask)
 	status := ex.GetTaskStatus(id)
@@ -56,6 +59,7 @@ func TestInProgressStatus(t *testing.T) {
 		}
 		return nil
 	}
+
 	ex := NewTaskExecuter()
 	id := ex.QueueTask(errorTask)
 	status := ex.GetTaskStatus(id)

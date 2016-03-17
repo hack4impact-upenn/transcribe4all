@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/hack4impact/audio-transcription-service/tasks"
 )
 
 type route struct {
@@ -28,7 +29,7 @@ var routes = []route{
 		helloHandler,
 	},
 	route{
-		"initiateTranscriptionJob",
+		"add_job",
 		"POST",
 		"/add_job",
 		initiateTranscriptionJobHandler,
@@ -38,6 +39,12 @@ var routes = []route{
 		"GET",
 		"/health",
 		healthHandler,
+	},
+	route{
+		"job_status",
+		"GET",
+		"/job_status/{id}",
+		jobStatusHandler,
 	},
 }
 
@@ -62,4 +69,13 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("healthy!"))
+}
+
+// jobStatusHandler returns the status of a task with given id.
+func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
+	args := mux.Vars(r)
+	id := args["id"]
+
+	status := tasks.DefaultTaskExecuter.GetTaskStatus(id)
+	w.Write([]byte(status.String()))
 }
