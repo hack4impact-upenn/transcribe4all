@@ -71,12 +71,6 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("healthy!"))
 }
 
-var statuses = [...]string{
-	"In progress",
-	"Done",
-	"Error",
-}
-
 // jobStatusHandler takes a POST request and returns status message.
 func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
