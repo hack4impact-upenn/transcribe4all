@@ -47,7 +47,7 @@ func (s Status) String() string {
 	case FAILURE:
 		str = "The task failed."
 	case NOTFOUND:
-		str = "Error: not found"
+		str = "Error: task not found."
 	}
 	return str
 }

@@ -71,7 +71,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("healthy!"))
 }
 
-// jobStatusHandler takes a POST request and returns status message.
+// jobStatusHandler returns the status of a task with given id.
 func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
 	id := args["id"]
