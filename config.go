@@ -2,20 +2,22 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/BurntSushi/toml"
 )
 
-func parseConfig() tomlConfig {
-	var config tomlConfig
-	if _, err := toml.DecodeFile("config.toml", &config); err != nil {
+//parseConfigFile parses the specified file into a struct
+func parseConfigFile(filename string) (*Config, error) {
+	var config Config
+	if _, err := toml.DecodeFile(filename, &config); err != nil {
 		fmt.Println(err)
+		return nil, err
 	}
-  return config
+	return &config, nil
 }
 
-// tomlConfig is an example
-type tomlConfig struct {
-	Username string
-	Password string
-	Email    string
+// Config is an example
+type Config struct {
+	EmailUsername string
+	EmailPassword string
 }
