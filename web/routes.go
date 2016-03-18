@@ -65,7 +65,8 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := tasks.DefaultTaskExecuter.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
+	executer := tasks.DefaultTaskExecuter
+	id := executer.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
 
 	fmt.Fprintf(w, "Accepted task "+id+"!")
 }
@@ -79,6 +80,7 @@ func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
 	id := args["id"]
 
-	status := tasks.DefaultTaskExecuter.GetTaskStatus(id)
+	executer := tasks.DefaultTaskExecuter
+	status := executer.GetTaskStatus(id)
 	w.Write([]byte(status.String()))
 }
