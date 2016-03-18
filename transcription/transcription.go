@@ -78,8 +78,8 @@ func fileNameFromURL(url string) string {
 	return fileName
 }
 
-// Task returns a task function for transcription using transcription functions.
-func Task(audioURL string, emailAddresses []string) func() error {
+// MakeTaskFunction returns a task function for transcription using transcription functions.
+func MakeTaskFunction(audioURL string, emailAddresses []string) func() error {
 	return func() error {
 		fileName := fileNameFromURL(audioURL)
 		if err := DownloadFileFromURL(audioURL); err != nil {

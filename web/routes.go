@@ -65,7 +65,7 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id := tasks.DefaultTaskExecuter.QueueTask(transcription.Task(jsonData.AudioURL, jsonData.EmailAddresses))
+	id := tasks.DefaultTaskExecuter.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
 
 	fmt.Fprintf(w, "Accepted task "+id+"!")
 }
