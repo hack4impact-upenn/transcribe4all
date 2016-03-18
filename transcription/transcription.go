@@ -1,7 +1,10 @@
 package transcription
 
 import (
+	"io"
+	"net/http"
 	"net/smtp"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -41,4 +44,35 @@ func ConvertAudioIntoRequiredFormat(fn string) error {
 		return err
 	}
 	return nil
+}
+
+// DownloadFileFromURL locally downloads an audio file stored at url.
+func DownloadFileFromURL(url string) error {
+	// Taken from https://github.com/thbar/golang-playground/blob/master/download-files.go
+	output, err := os.Create(fileNameFromURL(url))
+	if err != nil {
+		return err
+	}
+	defer output.Close()
+
+	// Get file contents
+	response, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	// Write the body to file
+	_, err = io.Copy(output, response.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func fileNameFromURL(url string) string {
+	tokens := strings.Split(url, "/")
+	fileName := tokens[len(tokens)-1]
+	return fileName
 }
