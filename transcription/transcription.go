@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+
+	"github.com/hack4impact/audio-transcription-service/web"
 )
 
 // SendEmail connects to an email server at host:port, switches to TLS,
@@ -76,4 +78,17 @@ func FileNameFromURL(url string) string {
 	tokens := strings.Split(url, "/")
 	fileName := tokens[len(tokens)-1]
 	return fileName
+}
+
+// Task returns a task function for transcription using transcription functions.
+func Task(jsonData web.transcriptionJobData) func() error {
+	return func() error {
+		fileName = transcription.FileNameFromURL(jsonData.AudioURL)
+		if err = DownloadFileFromURL(fileName); err != nil {
+			return err
+		}
+		if err = transcription.ConvertAudioIntoRequiredFormat(fileName); err != nil {
+			return err
+		}
+	}
 }
