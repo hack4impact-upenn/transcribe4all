@@ -10,6 +10,7 @@ import (
 func main() {
 	router := web.NewRouter()
 	middlewareRouter := web.ApplyMiddleware(router)
+	//var config = parseConfig() uncomment to get values from config
 
 	// serve http
 	http.Handle("/", middlewareRouter)
