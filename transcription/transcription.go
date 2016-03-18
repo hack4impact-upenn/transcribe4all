@@ -7,8 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-
-	"github.com/hack4impact/audio-transcription-service/web"
+	// "github.com/hack4impact/audio-transcription-service/web"
 )
 
 // SendEmail connects to an email server at host:port, switches to TLS,
@@ -51,7 +50,7 @@ func ConvertAudioIntoRequiredFormat(fn string) error {
 // DownloadFileFromURL locally downloads an audio file stored at url.
 func DownloadFileFromURL(url string) error {
 	// Taken from https://github.com/thbar/golang-playground/blob/master/download-files.go
-	output, err := os.Create(FileNameFromURL(url))
+	output, err := os.Create(fileNameFromURL(url))
 	if err != nil {
 		return err
 	}
@@ -73,22 +72,22 @@ func DownloadFileFromURL(url string) error {
 	return nil
 }
 
-// FileNameFromURL splits a URL by '/' to extract the file name.
-func FileNameFromURL(url string) string {
+func fileNameFromURL(url string) string {
 	tokens := strings.Split(url, "/")
 	fileName := tokens[len(tokens)-1]
 	return fileName
 }
 
 // Task returns a task function for transcription using transcription functions.
-func Task(jsonData web.transcriptionJobData) func() error {
+func Task(audioURL string, emailAddresses []string) func() error {
 	return func() error {
-		fileName = transcription.FileNameFromURL(jsonData.AudioURL)
-		if err = DownloadFileFromURL(fileName); err != nil {
+		fileName := fileNameFromURL(audioURL)
+		if err := DownloadFileFromURL(audioURL); err != nil {
 			return err
 		}
-		if err = transcription.ConvertAudioIntoRequiredFormat(fileName); err != nil {
+		if err := ConvertAudioIntoRequiredFormat(fileName); err != nil {
 			return err
 		}
+		return nil
 	}
 }
