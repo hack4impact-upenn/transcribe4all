@@ -20,11 +20,8 @@ var (
 	to       = []string{"to@email.com"}
 	subject  = "subject"
 	body     = "body"
-<<<<<<< HEAD
 	fn       = "file.mp3"
-=======
 	// url      = "http://hack4impact.org/audio.mp3"
->>>>>>> master
 )
 
 func TestSendEmail(t *testing.T) {
@@ -61,7 +58,6 @@ func TestSendEmailReturnsError(t *testing.T) {
 	assert.Error(err)
 }
 
-<<<<<<< HEAD
 func TestConvertAudioIntoRequiredFormat(t *testing.T) {
 	assert := assert.New(t)
 	ctrl := gomock.NewController(t)
@@ -99,7 +95,7 @@ func TestConvertAudioIntoRequiredFormatReturnsError(t *testing.T) {
 	err := ConvertAudioIntoRequiredFormat(fn)
 	assert.Error(err)
 }
-=======
+
 // func TestDownloadFileFromURL(t *testing.T) {
 // 	assert := assert.New(t)
 // 	ctrl := gomock.NewController(t)
@@ -132,4 +128,3 @@ func TestConvertAudioIntoRequiredFormatReturnsError(t *testing.T) {
 // 	err := SendEmail(username, password, host, port, to, subject, body)
 // 	assert.Error(err)
 // }
->>>>>>> master
