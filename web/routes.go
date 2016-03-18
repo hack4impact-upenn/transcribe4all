@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/hack4impact/audio-transcription-service/tasks"
+	"github.com/hack4impact/audio-transcription-service/transcription"
 )
 
 type route struct {
@@ -64,7 +65,9 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Accepted!")
+	id = tasks.DefaultTaskExecuter.QueueTask(transcription.Task(jsonData))
+
+	fmt.Fprintf(w, "Accepted task "+id+"!")
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
