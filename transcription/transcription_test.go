@@ -4,6 +4,7 @@ import (
 	"errors"
 	// "net/http"
 	"net/smtp" // mock
+	"os/exec"  // mock
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -19,6 +20,7 @@ var (
 	to       = []string{"to@email.com"}
 	subject  = "subject"
 	body     = "body"
+	fn       = "file.mp3"
 	// url      = "http://hack4impact.org/audio.mp3"
 )
 
@@ -53,6 +55,44 @@ func TestSendEmailReturnsError(t *testing.T) {
 	)
 
 	err := SendEmail(username, password, host, port, to, subject, body)
+	assert.Error(err)
+}
+
+func TestConvertAudioIntoRequiredFormat(t *testing.T) {
+	assert := assert.New(t)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// Setup the mock package
+	exec.MOCK().SetController(ctrl)
+
+	cmd := &exec.Cmd{}
+
+	gomock.InOrder(
+		exec.EXPECT().Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".wav").Times(1).Return(cmd),
+		cmd.EXPECT().Run().Times(1),
+	)
+
+	err := ConvertAudioIntoRequiredFormat(fn)
+	assert.NoError(err)
+}
+
+func TestConvertAudioIntoRequiredFormatReturnsError(t *testing.T) {
+	assert := assert.New(t)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	// Setup the mock package
+	exec.MOCK().SetController(ctrl)
+
+	cmd := &exec.Cmd{}
+
+	gomock.InOrder(
+		exec.EXPECT().Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".wav").Times(1).Return(cmd),
+		cmd.EXPECT().Run().Times(1).Return(errors.New("Bad!")),
+	)
+
+	err := ConvertAudioIntoRequiredFormat(fn)
 	assert.Error(err)
 }
 
