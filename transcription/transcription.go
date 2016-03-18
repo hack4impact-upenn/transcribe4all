@@ -49,7 +49,7 @@ func ConvertAudioIntoRequiredFormat(fn string) error {
 // DownloadFileFromURL locally downloads an audio file stored at url.
 func DownloadFileFromURL(url string) error {
 	// Taken from https://github.com/thbar/golang-playground/blob/master/download-files.go
-	output, err := os.Create(fileNameFromURL(url))
+	output, err := os.Create(FileNameFromURL(url))
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,8 @@ func DownloadFileFromURL(url string) error {
 	return nil
 }
 
-func fileNameFromURL(url string) string {
+// FileNameFromURL splits a URL by '/' to extract the file name.
+func FileNameFromURL(url string) string {
 	tokens := strings.Split(url, "/")
 	fileName := tokens[len(tokens)-1]
 	return fileName
