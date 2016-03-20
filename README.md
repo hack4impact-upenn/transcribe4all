@@ -3,8 +3,8 @@
 ## Go set up the project
 
 ```
-$ go get github.com/hack4impact/audio-transcription-service
-$ cd $GOPATH/src/github.com/hack4impact/audio-transcription-service
+$ go get github.com/hack4impact/transcribe4all
+$ cd $GOPATH/src/github.com/hack4impact/transcribe4all
 ```
 
 ## Dependency management
@@ -26,7 +26,7 @@ $ godep save ./...
 
 ```
 $ go build
-$ ./audio-transcription-service
+$ ./transcribe4all
 ```
 
 ## Tests
