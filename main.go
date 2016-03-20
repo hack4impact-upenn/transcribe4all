@@ -1,3 +1,4 @@
+// Package main initializes a web server.
 package main
 
 import (
