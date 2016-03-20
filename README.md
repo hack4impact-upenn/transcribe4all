@@ -1,10 +1,10 @@
-# audio-transcription-service [![Build Status](https://travis-ci.org/hack4impact/audio-transcription-service.svg?branch=master)](https://travis-ci.org/hack4impact/audio-transcription-service) [![GoDoc](https://godoc.org/github.com/hack4impact/audio-transcription-service?status.svg)](https://godoc.org/github.com/hack4impact/audio-transcription-service)
+# transcribe4all [![Build Status](https://travis-ci.org/hack4impact/transcribe4all.svg?branch=master)](https://travis-ci.org/hack4impact/transcribe4all) [![GoDoc](https://godoc.org/github.com/hack4impact/transcribe4all?status.svg)](https://godoc.org/github.com/hack4impact/transcribe4all)
 
 ## Go set up the project
 
 ```
-$ go get github.com/hack4impact/audio-transcription-service
-$ cd $GOPATH/src/github.com/hack4impact/audio-transcription-service
+$ go get github.com/hack4impact/transcribe4all
+$ cd $GOPATH/src/github.com/hack4impact/transcribe4all
 ```
 
 ## Dependency management
@@ -26,10 +26,20 @@ $ godep save ./...
 
 ```
 $ go build
-$ ./audio-transcription-service
+$ ./transcribe4all
 ```
 
-## Running tests
+## Tests
+
+Install the testing dependencies
+
+```
+$ go get -u github.com/qur/withmock
+$ go get -u github.com/qur/withmock/mocktest
+$ go get -u golang.org/x/tools/cmd/goimports
+```
+
+Run the tests
 
 ```
 $ make test
