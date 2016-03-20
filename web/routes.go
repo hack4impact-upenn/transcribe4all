@@ -23,12 +23,6 @@ type transcriptionJobData struct {
 
 var routes = []route{
 	route{
-		"hello",
-		"GET",
-		"/hello/{name}",
-		helloHandler,
-	},
-	route{
 		"add_job",
 		"POST",
 		"/add_job",
@@ -48,11 +42,6 @@ var routes = []route{
 	},
 }
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	args := mux.Vars(r)
-	fmt.Fprintf(w, "Hello %s!", args["name"])
-}
-
 // initiateTranscriptionJobHandle takes a POST request containing a json object,
 // decodes it into an audioData struct, and returns appropriate message.
 func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
@@ -67,6 +56,7 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Accepted!")
 }
 
+// healthHandler returns a 200 response to the client if the server is healthy.
 func healthHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("healthy!"))
 }
