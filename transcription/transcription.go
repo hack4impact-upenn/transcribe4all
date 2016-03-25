@@ -1,3 +1,5 @@
+// Package transcription implements functions for the manipulation and
+// transcription of audio files.
 package transcription
 
 import (

@@ -1,3 +1,4 @@
+// Package tasks implements a basic task queue.
 package tasks
 
 import (
