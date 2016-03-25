@@ -2,7 +2,7 @@ package web
 
 import (
 	"encoding/json"
-	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -53,12 +53,12 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Accepted!")
+	io.WriteString(w, "Accepted!")
 }
 
 // healthHandler returns a 200 response to the client if the server is healthy.
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("healthy!"))
+	io.WriteString(w, "OK :)")
 }
 
 // jobStatusHandler returns the status of a task with given id.
@@ -67,5 +67,5 @@ func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 	id := args["id"]
 
 	status := tasks.DefaultTaskExecuter.GetTaskStatus(id)
-	w.Write([]byte(status.String()))
+	io.WriteString(w, status.String())
 }
