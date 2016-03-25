@@ -34,12 +34,23 @@ func msgHeaders(from string, to []string, subject string) string {
 	return strings.Join(msgHeaders, "\r\n")
 }
 
-// ConvertAudioIntoRequiredFormat converts encoded audio into the required format.
-func ConvertAudioIntoRequiredFormat(fn string) error {
+// ConvertAudioIntoWavFormat converts encoded audio into the required format.
+func ConvertAudioIntoWavFormat(fn string) error {
 	// http://cmusphinx.sourceforge.net/wiki/faq
 	// -ar 16000 sets frequency to required 16khz
 	// -ac 1 sets the number of audio channels to 1
 	cmd := exec.Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".wav")
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// ConvertAudioIntoFlacFormat converts files into .flac format.
+func ConvertAudioIntoFlacFormat(fn string) error {
+	// -ar 16000 sets frequency to required 16khz
+	// -ac 1 sets the number of audio channels to 1
+	cmd := exec.Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".flac")
 	if err := cmd.Run(); err != nil {
 		return err
 	}
