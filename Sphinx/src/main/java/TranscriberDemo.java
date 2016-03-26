@@ -23,7 +23,7 @@ public class TranscriberDemo {
 
 		Configuration configuration = new Configuration();
 
-		configuration.setAcousticModelPath("cmusphinx-en-us-5.2");
+		configuration.setAcousticModelPath("cmusphinx-en-us");
 		configuration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
 		configuration.setLanguageModelPath("en-us.lm");
 
