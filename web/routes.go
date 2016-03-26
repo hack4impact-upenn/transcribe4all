@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/hack4impact/audio-transcription-service/tasks"
-	"github.com/hack4impact/audio-transcription-service/transcription"
+	"github.com/hack4impact/transcribe4all/tasks"
+	"github.com/hack4impact/transcribe4all/transcription"
 )
 
 type route struct {
