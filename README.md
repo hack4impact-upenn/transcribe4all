@@ -32,7 +32,7 @@ $ ./transcribe4all
 
 ## Sphinx
 
-If you are going to use Sphinx for transcription look at the following [instructions](Sphinx/README.md):
+If you are going to use Sphinx for transcription look at the following [instructions](Sphinx/README.md)
 
 
 ## Tests
