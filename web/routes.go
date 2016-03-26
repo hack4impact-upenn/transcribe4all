@@ -3,6 +3,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -68,7 +69,7 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	executer := tasks.DefaultTaskExecuter
 	id := executer.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
 
-	fmt.Fprintf(w, "Accepted task %d!", id)
+	log.Print(w, "Accepted task %d!", id)
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
