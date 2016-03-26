@@ -89,3 +89,17 @@ func fileNameFromURL(url string) string {
 	fileName := tokens[len(tokens)-1]
 	return fileName
 }
+
+// MakeTaskFunction returns a task function for transcription using transcription functions.
+func MakeTaskFunction(audioURL string, emailAddresses []string) func() error {
+	return func() error {
+		fileName := fileNameFromURL(audioURL)
+		if err := DownloadFileFromURL(audioURL); err != nil {
+			return err
+		}
+		if err := ConvertAudioIntoWavFormat(fileName); err != nil {
+			return err
+		}
+		return nil
+	}
+}

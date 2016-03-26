@@ -3,10 +3,12 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
 	"github.com/hack4impact/transcribe4all/tasks"
+	"github.com/hack4impact/transcribe4all/transcription"
 )
 
 type route struct {
@@ -64,7 +66,10 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Accepted!")
+	executer := tasks.DefaultTaskExecuter
+	id := executer.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
+
+	log.Print(w, "Accepted task %d!", id)
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -76,6 +81,7 @@ func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 	args := mux.Vars(r)
 	id := args["id"]
 
-	status := tasks.DefaultTaskExecuter.GetTaskStatus(id)
+	executer := tasks.DefaultTaskExecuter
+	status := executer.GetTaskStatus(id)
 	w.Write([]byte(status.String()))
 }
