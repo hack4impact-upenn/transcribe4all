@@ -4,6 +4,9 @@ import (
 	"bufio"
 	"encoding/json"
 	"io"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"net/url"
 	"os"
 
@@ -12,13 +15,14 @@ import (
 
 // TranscribeWithIBM transcribes a given audio file using the IBM Watson
 // Speech To Text API
-func TranscribeWithIBM(filePath string, ibmAuthToken string) (string, error) {
-	url, err := generateIBMURL(ibmAuthToken)
+func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) (string, error) {
+	IBMAuthToken, err := getIBMAuthToken(IBMUsername, IBMPassword)
+
+	url, err := generateIBMURL(IBMAuthToken)
 	if err != nil {
 		return "", err
 	}
-
-	ws, err := websocket.Dial(url, "", "")
+	ws, err := websocket.Dial(url, "", "http://localhost:8000")
 	if err != nil {
 		return "", err
 	}
@@ -43,6 +47,7 @@ func TranscribeWithIBM(filePath string, ibmAuthToken string) (string, error) {
 	if err = uploadBinaryWithWebsocket(ws, filePath); err != nil {
 		return "", err
 	}
+	log.Println("File uploaded")
 
 	ws.Write([]byte{}) // write empty message to indicate end of uploading file
 
@@ -54,13 +59,38 @@ func TranscribeWithIBM(filePath string, ibmAuthToken string) (string, error) {
 	return transcriptionRes, nil
 }
 
-func generateIBMURL(ibmAuthToken string) (string, error) {
+func getIBMAuthToken(IBMUsername string, IBMPassword string) (string, error) {
+	baseURL, err := url.Parse("https://stream.watsonplatform.net/authorization/api/v1/token")
+	if err != nil {
+		return "", err
+	}
+	params := url.Values{}
+	params.Add("url", "https://stream.watsonplatform.net/speech-to-text/api")
+	baseURL.RawQuery = params.Encode()
+
+	req, err := http.NewRequest(http.MethodGet, baseURL.String(), nil)
+	if err != nil {
+		return "", err
+	}
+	req.SetBasicAuth(IBMUsername, IBMPassword)
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return "", err
+	}
+	token, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", err
+	}
+	return string(token), nil
+}
+
+func generateIBMURL(IBMAuthToken string) (string, error) {
 	baseURL, err := url.Parse("wss://stream.watsonplatform.net/speech-to-text/api/v1/recognize")
 	if err != nil {
 		return "", err
 	}
 	params := url.Values{}
-	params.Add("watson-token", ibmAuthToken)
+	params.Add("watson-token", IBMAuthToken)
 	params.Add("model", "en-US_BroadbandModel")
 	baseURL.RawQuery = params.Encode()
 	return baseURL.String(), nil
@@ -91,6 +121,7 @@ func uploadBinaryWithWebsocket(ws *websocket.Conn, filePath string) error {
 func pollForTranscriptionResult(ws *websocket.Conn) (string, error) {
 	transcriptionRes := []byte{}
 	for {
+		log.Println("Waiting...")
 		n, err := ws.Read(transcriptionRes)
 		if err != nil {
 			return "", err
