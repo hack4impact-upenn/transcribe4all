@@ -10,7 +10,6 @@ import (
 func parseConfigFile(filename string) (*Config, error) {
 	var config Config
 	if _, err := toml.DecodeFile(filename, &config); err != nil {
-		fmt.Println(err)
 		return nil, err
 	}
 	return &config, nil
