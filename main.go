@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	_ "net/http/pprof" // import for side effects
 
@@ -10,6 +11,11 @@ import (
 func main() {
 	router := web.NewRouter()
 	middlewareRouter := web.ApplyMiddleware(router)
+	config, configErr := parseConfigFile("config.toml")
+	if configErr == nil {
+		// replace this with your actual use of config
+		fmt.Printf("%+v\n", *config)
+	}
 
 	// serve http
 	http.Handle("/", middlewareRouter)
