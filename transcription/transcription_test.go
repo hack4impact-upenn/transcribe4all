@@ -73,7 +73,7 @@ func TestConvertAudioIntoRequiredFormat(t *testing.T) {
 		cmd.EXPECT().Run().Times(1),
 	)
 
-	err := ConvertAudioIntoRequiredFormat(fn)
+	err := ConvertAudioIntoWavFormat(fn)
 	assert.NoError(err)
 }
 
@@ -92,7 +92,7 @@ func TestConvertAudioIntoRequiredFormatReturnsError(t *testing.T) {
 		cmd.EXPECT().Run().Times(1).Return(errors.New("Bad!")),
 	)
 
-	err := ConvertAudioIntoRequiredFormat(fn)
+	err := ConvertAudioIntoWavFormat(fn)
 	assert.Error(err)
 }
 
