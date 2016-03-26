@@ -1,7 +1,6 @@
 package web
 
 import (
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -62,21 +61,35 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Hello %s!", args["name"])
 }
 
-// initiateTranscriptionJobHandle takes a POST request containing a json object,
-// decodes it into an audioData struct, and returns appropriate message.
+// initiateTranscriptionJobHandlerJSON takes a POST request containing a json object,
+// decodes it into a transcriptionJobData struct, and starts a transcription task.
+// func initiateTranscriptionJobHandlerJSON(w http.ResponseWriter, r *http.Request) {
+// 	var jsonData transcriptionJobData
+//
+// 	// unmarshal from the response body directly into our struct
+// 	if err := json.NewDecoder(r.Body).Decode(&jsonData); err != nil {
+// 		http.Error(w, err.Error(), http.StatusBadRequest)
+// 		return
+// 	}
+//
+// 	executer := tasks.DefaultTaskExecuter
+// 	id := executer.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
+//
+// 	log.Print(w, "Accepted task %d!", id)
+// }
+
+// initiateTranscriptionJobHandler takes a POST request from a form,
+// decodes it into a transcriptionJobData struct, and starts a transcription task.
 func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
-	var jsonData transcriptionJobData
-
-	// unmarshal from the response body directly into our struct
-	if err := json.NewDecoder(r.Body).Decode(&jsonData); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
+	formData := transcriptionJobData{
+		AudioURL:       r.FormValue("AudioURL"),
+		EmailAddresses: r.Form["EmailAddresses"],
 	}
-
 	executer := tasks.DefaultTaskExecuter
-	id := executer.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
+	id := executer.QueueTask(transcription.MakeTaskFunction(formData.AudioURL, formData.EmailAddresses))
 
 	log.Print(w, "Accepted task %d!", id)
+	http.Redirect(w, r, "/form", http.StatusFound)
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
