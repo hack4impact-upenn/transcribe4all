@@ -12,7 +12,7 @@ import edu.cmu.sphinx.api.SpeechResult;
 import edu.cmu.sphinx.api.StreamSpeechRecognizer;
 import edu.cmu.sphinx.result.WordResult;
 
-public class TranscriberDemo {
+public class Transcriber {
 
 	public static void main(String[] args) throws Exception {
 		transcribe_file("files/Insider");
