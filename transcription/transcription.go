@@ -1,7 +1,10 @@
+// Package transcription implements functions for the manipulation and
+// transcription of audio files.
 package transcription
 
 import (
 	"io"
+	"net/http"
 	"net/smtp"
 	"os"
 	"os/exec"
@@ -53,4 +56,72 @@ func startTranscription(fileName string, jarName string) error {
 		return err
 	}
 	return nil
+}
+
+// ConvertAudioIntoWavFormat converts encoded audio into the required format.
+func ConvertAudioIntoWavFormat(fn string) error {
+	// http://cmusphinx.sourceforge.net/wiki/faq
+	// -ar 16000 sets frequency to required 16khz
+	// -ac 1 sets the number of audio channels to 1
+	cmd := exec.Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".wav")
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// ConvertAudioIntoFlacFormat converts files into .flac format.
+func ConvertAudioIntoFlacFormat(fn string) error {
+	// -ar 16000 sets frequency to required 16khz
+	// -ac 1 sets the number of audio channels to 1
+	cmd := exec.Command("ffmpeg", "-i", fn, "-ar", "16000", "-ac", "1", fn+".flac")
+	if err := cmd.Run(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// DownloadFileFromURL locally downloads an audio file stored at url.
+func DownloadFileFromURL(url string) error {
+	// Taken from https://github.com/thbar/golang-playground/blob/master/download-files.go
+	output, err := os.Create(fileNameFromURL(url))
+	if err != nil {
+		return err
+	}
+	defer output.Close()
+
+	// Get file contents
+	response, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	// Write the body to file
+	_, err = io.Copy(output, response.Body)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func fileNameFromURL(url string) string {
+	tokens := strings.Split(url, "/")
+	fileName := tokens[len(tokens)-1]
+	return fileName
+}
+
+// MakeTaskFunction returns a task function for transcription using transcription functions.
+func MakeTaskFunction(audioURL string, emailAddresses []string) func() error {
+	return func() error {
+		fileName := fileNameFromURL(audioURL)
+		if err := DownloadFileFromURL(audioURL); err != nil {
+			return err
+		}
+		if err := ConvertAudioIntoWavFormat(fileName); err != nil {
+			return err
+		}
+		return nil
+	}
 }
