@@ -40,14 +40,14 @@ const (
 // DefaultTaskExecuter is an instance of a NewTaskExecuter.
 var DefaultTaskExecuter = NewTaskExecuter()
 
-// put maps k to v in the map
+// put(k,v) maps k to v in the map
 func (c *concurrentStatusMap) put(k string, v Status) {
 	c.Lock()
 	c.m[k] = v
 	c.Unlock()
 }
 
-// get returns the value of k in the map
+// get(k) returns the value of k in the map
 func (c *concurrentStatusMap) get(k string) (Status, bool) {
 	c.RLock()
 	v, ok := c.m[k]
