@@ -3,6 +3,8 @@ package web
 import (
 	"encoding/json"
 	"fmt"
+	"html/template"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -46,6 +48,12 @@ var routes = []route{
 		"/job_status/{id}",
 		jobStatusHandler,
 	},
+	route{
+		"form",
+		"GET",
+		"/form",
+		formHandler,
+	},
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
@@ -64,7 +72,7 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Fprintf(w, "Accepted!")
+	log.Print(w, "Accepted task!")
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -78,4 +86,25 @@ func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 
 	status := tasks.DefaultTaskExecuter.GetTaskStatus(id)
 	w.Write([]byte(status.String()))
+}
+
+func formHandler(w http.ResponseWriter, r *http.Request) {
+	const tpl = `
+	<!DOCTYPE html>
+	<html>
+		<head>
+		  <title></title>
+		</head>
+	<body>
+	  <form action="/add_job" method="POST" enctype="application/json">
+	    <div>URL:<input type="url" name="AudioURL" required></div>
+			<div>Email Addresses:<input type="email" name="EmailAddresses" multiple required></div>
+			<div><input type="submit" value="Submit"></div>
+	  </form>
+	</form>
+	</body>
+	</html>
+	`
+	t, _ := template.New("webpage").Parse(tpl)
+	_ = t.Execute(w, transcriptionJobData{})
 }
