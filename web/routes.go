@@ -51,7 +51,7 @@ var routes = []route{
 	route{
 		"form",
 		"GET",
-		"/form",
+		"/",
 		formHandler,
 	},
 }
@@ -89,7 +89,7 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	id := executer.QueueTask(transcription.MakeTaskFunction(formData.AudioURL, formData.EmailAddresses))
 
 	log.Print(w, "Accepted task %d!", id)
-	http.Redirect(w, r, "/form", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
@@ -114,7 +114,7 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 		  <title></title>
 		</head>
 	<body>
-	  <form action="/add_job" method="POST" enctype="application/json">
+	  <form action="/add_job" method="POST">
 	    <div>URL:<input type="url" name="AudioURL" required></div>
 			<div>Email Addresses:<input type="email" name="EmailAddresses" multiple required></div>
 			<div><input type="submit" value="Submit"></div>
