@@ -17,9 +17,13 @@ type TaskExecuter interface {
 	completeTask(id string, task func() error)
 }
 
-type defaultExecuter struct {
+type concurrentStatusMap struct {
 	sync.RWMutex
 	m map[string]Status
+}
+
+type defaultExecuter struct {
+	cMap concurrentStatusMap
 }
 
 // These are some enumerated Status constants.
@@ -36,6 +40,21 @@ const (
 
 // DefaultTaskExecuter is an instance of a NewTaskExecuter.
 var DefaultTaskExecuter = NewTaskExecuter()
+
+// put(k,v) maps k to v in the map
+func (c *concurrentStatusMap) put(k string, v Status) {
+	c.Lock()
+	c.m[k] = v
+	c.Unlock()
+}
+
+// get(k) returns the value of k in the map
+func (c *concurrentStatusMap) get(k string) (Status, bool) {
+	c.RLock()
+	v, ok := c.m[k]
+	c.RUnlock()
+	return v, ok
+}
 
 func (s Status) String() string {
 	var str string
@@ -55,7 +74,9 @@ func (s Status) String() string {
 
 // NewTaskExecuter returns a TaskExecuter ready to execute.
 func NewTaskExecuter() TaskExecuter {
-	return &defaultExecuter{m: make(map[string]Status)}
+	return &defaultExecuter{
+		cMap: concurrentStatusMap{m: make(map[string]Status)},
+	}
 }
 
 // QueueTask initializes a new task, taking a generic task function. If the
@@ -63,19 +84,14 @@ func NewTaskExecuter() TaskExecuter {
 // goroutine which panics, the panic cannot be caught.
 func (ex *defaultExecuter) QueueTask(task func() error) string {
 	id := generateID(20)
-	ex.Lock()
-	ex.m[id] = INPROGRESS
-	ex.Unlock()
+	ex.cMap.put(id, INPROGRESS)
 	go ex.completeTask(id, task)
 	return id
 }
 
 // GetTaskStatus gets the current status of a task.
 func (ex *defaultExecuter) GetTaskStatus(id string) Status {
-	ex.RLock()
-	defer ex.RUnlock()
-
-	if status, ok := ex.m[id]; ok {
+	if status, ok := ex.cMap.get(id); ok {
 		return status
 	}
 	return NOTFOUND
@@ -84,23 +100,17 @@ func (ex *defaultExecuter) GetTaskStatus(id string) Status {
 func (ex *defaultExecuter) completeTask(id string, task func() error) {
 	defer func() {
 		if r := recover(); r != nil {
-			ex.Lock()
-			ex.m[id] = FAILURE
-			ex.Unlock()
+			ex.cMap.put(id, FAILURE)
 		}
 	}()
 
 	// Run the task.
 	if err := task(); err != nil {
-		ex.Lock()
-		ex.m[id] = FAILURE
-		ex.Unlock()
+		ex.cMap.put(id, FAILURE)
 		return
 	}
 
-	ex.Lock()
-	ex.m[id] = SUCCESS
-	ex.Unlock()
+	ex.cMap.put(id, SUCCESS)
 }
 
 // Borrowed from https://siongui.github.io/2015/04/13/go-generate-random-string/
