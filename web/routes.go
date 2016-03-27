@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -37,6 +38,12 @@ var routes = []route{
 		initiateTranscriptionJobHandler,
 	},
 	route{
+		"add_job_json",
+		"POST",
+		"/add_job_json",
+		initiateTranscriptionJobHandlerJSON,
+	},
+	route{
 		"health",
 		"GET",
 		"/health",
@@ -63,20 +70,20 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
 
 // initiateTranscriptionJobHandlerJSON takes a POST request containing a json object,
 // decodes it into a transcriptionJobData struct, and starts a transcription task.
-// func initiateTranscriptionJobHandlerJSON(w http.ResponseWriter, r *http.Request) {
-// 	var jsonData transcriptionJobData
-//
-// 	// unmarshal from the response body directly into our struct
-// 	if err := json.NewDecoder(r.Body).Decode(&jsonData); err != nil {
-// 		http.Error(w, err.Error(), http.StatusBadRequest)
-// 		return
-// 	}
-//
-// 	executer := tasks.DefaultTaskExecuter
-// 	id := executer.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
-//
-// 	log.Print(w, "Accepted task %d!", id)
-// }
+func initiateTranscriptionJobHandlerJSON(w http.ResponseWriter, r *http.Request) {
+	var jsonData transcriptionJobData
+
+	// unmarshal from the response body directly into our struct
+	if err := json.NewDecoder(r.Body).Decode(&jsonData); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	executer := tasks.DefaultTaskExecuter
+	id := executer.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
+
+	log.Print(w, "Accepted task %d!", id)
+}
 
 // initiateTranscriptionJobHandler takes a POST request from a form,
 // decodes it into a transcriptionJobData struct, and starts a transcription task.
