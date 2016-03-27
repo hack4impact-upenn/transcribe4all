@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io"
 	"log"
 	"net/http"
 
@@ -25,12 +26,6 @@ type transcriptionJobData struct {
 }
 
 var routes = []route{
-	route{
-		"hello",
-		"GET",
-		"/hello/{name}",
-		helloHandler,
-	},
 	route{
 		"add_job",
 		"POST",
@@ -63,11 +58,6 @@ var routes = []route{
 	},
 }
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	args := mux.Vars(r)
-	fmt.Fprintf(w, "Hello %s!", args["name"])
-}
-
 // initiateTranscriptionJobHandlerJSON takes a POST request containing a json object,
 // decodes it into a transcriptionJobData struct, and starts a transcription task.
 func initiateTranscriptionJobHandlerJSON(w http.ResponseWriter, r *http.Request) {
@@ -82,7 +72,7 @@ func initiateTranscriptionJobHandlerJSON(w http.ResponseWriter, r *http.Request)
 	executer := tasks.DefaultTaskExecuter
 	id := executer.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
 
-	log.Print(w, "Accepted task %d!", id)
+	fmt.Fprintf(w, "Accepted task %s!", id)
 }
 
 // initiateTranscriptionJobHandler takes a POST request from a form,
@@ -95,8 +85,9 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
+// healthHandler returns a 200 response to the client if the server is healthy.
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("healthy!"))
+	io.WriteString(w, "OK :)")
 }
 
 // jobStatusHandler returns the status of a task with given id.
@@ -106,7 +97,7 @@ func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 
 	executer := tasks.DefaultTaskExecuter
 	status := executer.GetTaskStatus(id)
-	w.Write([]byte(status.String()))
+	io.WriteString(w, status.String())
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
