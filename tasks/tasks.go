@@ -1,3 +1,4 @@
+// Package tasks implements a basic task queue.
 package tasks
 
 import (
@@ -62,7 +63,7 @@ func (s Status) String() string {
 	case INPROGRESS:
 		str = "The task is in progress."
 	case SUCCESS:
-		str = "The task was successfully completed."
+		str = "The task completed successfully."
 	case FAILURE:
 		str = "The task failed."
 	case NOTFOUND:
