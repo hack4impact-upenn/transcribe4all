@@ -15,7 +15,7 @@ import edu.cmu.sphinx.result.WordResult;
 public class TranscriberDemo {
 
 	public static void main(String[] args) throws Exception {
-		transcribe_file("files/wild");
+		transcribe_file("files/wildshort");
 		return;
 	}
 

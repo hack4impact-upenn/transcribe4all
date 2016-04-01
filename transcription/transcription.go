@@ -38,23 +38,13 @@ func msgHeaders(from string, to []string, subject string) string {
 	return strings.Join(msgHeaders, "\r\n")
 }
 
-// Transcribe a given file using a Sphinx jar. The fileName should be in
-// "name.wav" format and the jarName should be in "name.jar" format.
-func startTranscription(fileName string, jarName string) error {
+// StartTranscription transcribes a given file using Sphinx.
+// File name should be in "name.wav" format.
+func StartTranscription(fileName string, command string) error {
 
-	cmd := exec.Command("java", "-jar", jarName, fileName)
-	stdout, err := cmd.StdoutPipe()
+	cmd := exec.Command("java", "-jar", command, fileName)
+	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return err
-	}
-	if err := cmd.Start(); err != nil {
-		return err
-	}
-	//Currently copying output to Stdout
-	if _, err := io.Copy(os.Stdout, stdout); err != nil {
-		return err
-	}
-	if err := cmd.Wait(); err != nil {
 		return err
 	}
 	return nil
