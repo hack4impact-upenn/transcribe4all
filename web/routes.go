@@ -3,7 +3,7 @@ package web
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"io"
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -25,12 +25,6 @@ type transcriptionJobData struct {
 
 var routes = []route{
 	route{
-		"hello",
-		"GET",
-		"/hello/{name}",
-		helloHandler,
-	},
-	route{
 		"add_job",
 		"POST",
 		"/add_job",
@@ -50,11 +44,6 @@ var routes = []route{
 	},
 }
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	args := mux.Vars(r)
-	fmt.Fprintf(w, "Hello %s!", args["name"])
-}
-
 // initiateTranscriptionJobHandle takes a POST request containing a json object,
 // decodes it into an audioData struct, and returns appropriate message.
 func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,11 +58,12 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	executer := tasks.DefaultTaskExecuter
 	id := executer.QueueTask(transcription.MakeTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses))
 
-	log.Print(w, "Accepted task %d!", id)
+	fmt.Fprintf(w, "Accepted task %s!", id)
 }
 
+// healthHandler returns a 200 response to the client if the server is healthy.
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("healthy!"))
+	io.WriteString(w, "OK :)")
 }
 
 // jobStatusHandler returns the status of a task with given id.
@@ -83,5 +73,5 @@ func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 
 	executer := tasks.DefaultTaskExecuter
 	status := executer.GetTaskStatus(id)
-	w.Write([]byte(status.String()))
+	io.WriteString(w, status.String())
 }
