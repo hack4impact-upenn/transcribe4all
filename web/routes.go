@@ -101,6 +101,6 @@ func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("web/form.html")
+	t, _ := template.ParseFiles("templates/form.html")
 	_ = t.Execute(w, transcriptionJobData{})
 }
