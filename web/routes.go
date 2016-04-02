@@ -101,22 +101,6 @@ func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
-	const tpl = `
-	<!DOCTYPE html>
-	<html>
-		<head>
-		  <title></title>
-		</head>
-	<body>
-	  <form action="/add_job" method="POST">
-	    <div>URL:<input type="url" name="AudioURL" required></div>
-			<div>Email Addresses:<input type="email" name="EmailAddresses" multiple required></div>
-			<div><input type="submit" value="Submit"></div>
-	  </form>
-	</form>
-	</body>
-	</html>
-	`
-	t, _ := template.New("webpage").Parse(tpl)
+	t, _ := template.ParseFiles("web/form.html")
 	_ = t.Execute(w, transcriptionJobData{})
 }
