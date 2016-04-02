@@ -39,3 +39,10 @@ dependencies {
 apply plugin: 'application'
 
 mainClassName = 'Transcriber'
+
+run {
+  classpath = sourceSets.main.runtimeClasspath
+    if (project.hasProperty('myargs')) {
+        args(myargs.split(','))
+    }
+}

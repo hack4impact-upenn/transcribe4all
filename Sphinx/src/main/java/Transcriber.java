@@ -15,8 +15,15 @@ import edu.cmu.sphinx.result.WordResult;
 public class Transcriber {
 
 	public static void main(String[] args) throws Exception {
-		transcribe_file("files/Insider");
-		return;
+		if (args.length == 1) {
+			transcribe_file(args[0]);
+			return;
+		}
+		else {
+			// TODO: How should it fail?
+			System.out.println("Incorrect number of arguments");
+			return;
+		}
 	}
 
 	public static void transcribe_file(String name) throws Exception {
