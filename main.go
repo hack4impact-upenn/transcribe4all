@@ -14,7 +14,7 @@ func main() {
 
 	// serve http
 	http.Handle("/", middlewareRouter)
-	http.Handle("/semantic/", http.FileServer(http.Dir(".")))
+	http.Handle("/static/", http.FileServer(http.Dir(".")))
 	http.ListenAndServe(":8080", nil)
 
 }
