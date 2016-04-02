@@ -1,21 +1,21 @@
-Missing:
+## Get Missing Files
+The following large files must be copied into the Sphinx/ directory.
 
-Acoustic Model- cmusphinx-en-us
+	1. Acoustic Model: cmusphinx-en-us
+	2. Language Model: en-us.lm
 
-Language Model- en-us.lm
+Option 1
+Get both files from this [link](https://onedrive.live.com/redir?resid=427D6D69FE5B4BA3!40133&authkey=!AFIK0llMvpxykPk&ithint=file%2czip)
 
-Get from both files from this link:
+Option 2
+Get files from the official source:
 
-https://onedrive.live.com/redir?resid=427D6D69FE5B4BA3!40133&authkey=!AFIK0llMvpxykPk&ithint=file%2czip
+Acoustic Model
+[cmusphinx-en-us-5.2](https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/US%20English%20Generic%20Acoustic%20Model/) 
+Rename file to cmusphinx-en-us
 
-Or get files from official source; then extract and rename:
-
-https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/US%20English%20Generic%20Acoustic%20Model/
-
-cmusphinx-en-us-5.2 (or most recent one) to cmusphinx-en-us
-
-https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/US%20English%20Generic%20Language%20Model/
-
-cmusphinx-5.0-en-us.lm (or most recent one) to  en-us.lm
+Language Model
+[cmusphinx-5.0-en-us.lm](https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/US%20English%20Generic%20Language%20Model/) 
+Rename file to en-us.lm
 
 
