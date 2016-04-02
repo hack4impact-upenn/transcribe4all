@@ -20,9 +20,8 @@ public class Transcriber {
 			return;
 		}
 		else {
-			// TODO: How should it fail?
-			System.out.println("Incorrect number of arguments");
-			return;
+			System.err.println("Incorrect number of arguments. There should be exactly one argument with a valid filename");
+			System.exit(2);
 		}
 	}
 
