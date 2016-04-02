@@ -1,3 +1,4 @@
+// Package web implements http routing logic for the application.
 package web
 
 import (
