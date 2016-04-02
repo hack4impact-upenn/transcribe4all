@@ -3,6 +3,7 @@
 package transcription
 
 import (
+	"bufio"
 	"io"
 	"net/http"
 	"net/smtp"
@@ -10,6 +11,11 @@ import (
 	"os/exec"
 	"strings"
 )
+
+type transcription struct {
+	TextTranscription string
+	Metadata          string
+}
 
 // SendEmail connects to an email server at host:port, switches to TLS,
 // authenticates on TLS connections using the username and password, and sends
@@ -43,10 +49,32 @@ func msgHeaders(from string, to []string, subject string) string {
 func StartTranscription(fileName string, command string) error {
 
 	cmd := exec.Command("java", "-jar", command, fileName)
-	out, err := cmd.CombinedOutput()
+	_, err := cmd.CombinedOutput()
 	if err != nil {
 		return err
 	}
+	outputFileName := "/Sphinx/files/" + fileName + "-json.txt"
+	if err := transcriptionOutputToStruct(outputFileName); err != nil {
+		return err
+	}
+	return nil
+}
+
+// transcriptionOutputToStruct takes a text file and reads its input
+// into a Go struct
+func transcriptionOutputToStruct(fileName string) error {
+	var jsonData transcription
+
+	file, err := os.Open(fileName)
+	r := bufio.NewReader(file)
+	//handle end of file errors
+	//put into struct
+	bytesText, err := r.ReadBytes('\n')
+	bytesMeta, err := r.ReadBytes('\n')
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
