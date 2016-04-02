@@ -5,7 +5,7 @@ import (
 	"net/http"
 	_ "net/http/pprof" // import for side effects
 
-	"github.com/hack4impact/audio-transcription-service/web"
+	"github.com/hack4impact/transcribe4all/web"
 )
 
 func main() {
