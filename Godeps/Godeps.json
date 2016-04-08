@@ -1,7 +1,6 @@
 {
 	"ImportPath": "github.com/hack4impact/transcribe4all",
 	"GoVersion": "go1.6",
-	"GodepVersion": "v59",
 	"Packages": [
 		"./..."
 	],
