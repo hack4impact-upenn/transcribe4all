@@ -47,19 +47,20 @@ func msgHeaders(from string, to []string, subject string) string {
 
 // StartTranscription transcribes a given file using Sphinx.
 // File name should be in "name.wav" format.
-func StartTranscription(fileName string, command string) error {
+func StartTranscription(fileName string, command string) (string, error) {
 
 	cmd := exec.Command("java", "-jar", command, fileName)
 	_, err := cmd.CombinedOutput()
 	if err != nil {
-		return err
+		return "", err
 	}
 	outputFileName := "/Sphinx/files/" + fileName + "-json.txt"
-	//once json is sent somewhere, capture the output
-	if _, err := transcriptionOutputToStruct(outputFileName); err != nil {
-		return err
-	}
-	return nil
+
+	// //once json is sent somewhere, capture the output
+	// if _, err := transcriptionOutputToStruct(outputFileName); err != nil {
+	// 	return err
+	// }
+	return outputFileName, nil
 }
 
 // transcriptionOutputToStruct takes a text file and reads its input
