@@ -43,7 +43,7 @@ func msgHeaders(from string, to []string, subject string) string {
 func StartTranscription(fileName string, command string) error {
 
 	cmd := exec.Command("java", "-jar", command, fileName)
-	out, err := cmd.CombinedOutput()
+	_, err := cmd.CombinedOutput()
 	if err != nil {
 		return err
 	}
