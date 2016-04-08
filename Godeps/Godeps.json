@@ -1,7 +1,6 @@
 {
-	"ImportPath": "github.com/hack4impact/audio-transcription-service",
+	"ImportPath": "github.com/hack4impact/transcribe4all",
 	"GoVersion": "go1.6",
-	"GodepVersion": "v59",
 	"Packages": [
 		"./..."
 	],
@@ -26,6 +25,10 @@
 		{
 			"ImportPath": "github.com/gorilla/mux",
 			"Rev": "26a6070f849969ba72b72256e9f14cf519751690"
+		},
+		{
+			"ImportPath": "github.com/gorilla/websocket",
+			"Rev": "e2e3d8414d0fbae04004f151979f4e27c6747fe7"
 		},
 		{
 			"ImportPath": "github.com/justinas/alice",
