@@ -1,3 +1,4 @@
+// Package main initializes a web server.
 package main
 
 import (
@@ -19,5 +20,7 @@ func main() {
 
 	// serve http
 	http.Handle("/", middlewareRouter)
+	http.Handle("/static/", http.FileServer(http.Dir(".")))
 	http.ListenAndServe(":8080", nil)
+
 }
