@@ -4,6 +4,7 @@ package transcription
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 	"net/http"
 	"net/smtp"
@@ -54,7 +55,8 @@ func StartTranscription(fileName string, command string) error {
 		return err
 	}
 	outputFileName := "/Sphinx/files/" + fileName + "-json.txt"
-	if err := transcriptionOutputToStruct(outputFileName); err != nil {
+	//once json is sent somewhere, capture the output
+	if _, err := transcriptionOutputToStruct(outputFileName); err != nil {
 		return err
 	}
 	return nil
@@ -62,20 +64,27 @@ func StartTranscription(fileName string, command string) error {
 
 // transcriptionOutputToStruct takes a text file and reads its input
 // into a Go struct
-func transcriptionOutputToStruct(fileName string) error {
+func transcriptionOutputToStruct(fileName string) (transcription, error) {
 	var jsonData transcription
-
 	file, err := os.Open(fileName)
 	r := bufio.NewReader(file)
-	//handle end of file errors
-	//put into struct
+
 	bytesText, err := r.ReadBytes('\n')
-	bytesMeta, err := r.ReadBytes('\n')
 	if err != nil {
-		return err
+		return jsonData, err
+	}
+	bytesMeta, err := r.ReadBytes('\n')
+	if err != nil || err != io.EOF {
+		return jsonData, err
 	}
 
-	return nil
+	nText := bytes.IndexByte(bytesText, 0)
+	nMeta := bytes.IndexByte(bytesMeta, 0)
+	sText := string(bytesText[:nText])
+	sMeta := string(bytesText[:nMeta])
+
+	jsonData = transcription{TextTranscription: sText, Metadata: sMeta}
+	return jsonData, nil
 }
 
 // ConvertAudioIntoWavFormat converts encoded audio into the required format.
