@@ -3,13 +3,17 @@ package transcription
 import (
 	"bufio"
 	"encoding/base64"
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
-	"strings"
 
 	"github.com/gorilla/websocket"
 )
+
+type listeningState struct {
+	State string `json:"state"`
+}
 
 // TranscribeWithIBM transcribes a given audio file using the IBM Watson
 // Speech To Text API
@@ -82,9 +86,13 @@ func pollForTranscriptionResult(ws *websocket.Conn) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		// BUG(sandlerben): This is a hack which will not work if the transcription contains "listening"
-		if len(transcriptionRes) > 0 && !strings.Contains(string(transcriptionRes), "listening") {
-			return string(transcriptionRes), nil
+		if len(transcriptionRes) > 0 {
+			state := new(listeningState)
+			json.Unmarshal(transcriptionRes, state)
+			if state.State != "listening" {
+				return string(transcriptionRes), nil
+			}
 		}
+
 	}
 }
