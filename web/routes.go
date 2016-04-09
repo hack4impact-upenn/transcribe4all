@@ -79,7 +79,7 @@ func initiateTranscriptionJobHandlerJSON(w http.ResponseWriter, r *http.Request)
 // decodes it into a transcriptionJobData struct, and starts a transcription task.
 func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	executer := tasks.DefaultTaskExecuter
-	id := executer.QueueTask(transcription.MakeTaskFunction(r.FormValue("AudioURL"), r.Form["EmailAddresses"]))
+	id := executer.QueueTask(transcription.MakeTaskFunction(r.FormValue("url"), r.Form["emails"]))
 
 	log.Print(w, "Accepted task %d!", id)
 	http.Redirect(w, r, "/", http.StatusFound)
