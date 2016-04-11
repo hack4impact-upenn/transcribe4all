@@ -3,7 +3,6 @@ package transcription
 import (
 	"bufio"
 	"encoding/base64"
-	"encoding/json"
 	"io"
 	"log"
 	"net/http"
@@ -17,7 +16,7 @@ import (
 // https://www.ibm.com/smarterplanet/us/en/ibmwatson/developercloud/doc/speech-to-text/output.shtml
 // for details.
 type IBMResult struct {
-	ResultIndex string           `json:"result_index"`
+	ResultIndex int              `json:"result_index"`
 	Results     []ibmResultField `json:"results"`
 }
 type ibmResultField struct {
@@ -77,11 +76,10 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 	defer close(quit)
 
 	for {
-		_, transcriptionRes, err := ws.ReadMessage()
+		err := ws.ReadJSON(&result)
 		if err != nil {
 			return result, err
 		}
-		json.Unmarshal(transcriptionRes, &result)
 		if len(result.Results) > 0 {
 			return result, nil
 		}
