@@ -64,8 +64,9 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 	if err = uploadFileWithWebsocket(ws, filePath); err != nil {
 		return nil, err
 	}
-
-	ws.WriteMessage(websocket.BinaryMessage, []byte{}) // write empty message to indicate end of uploading file
+	if err = ws.WriteMessage(websocket.BinaryMessage, []byte{}); err != nil { // write empty message to indicate end of uploading file
+		return nil, err
+	}
 	log.Println("File uploaded")
 
 	// IBM must receive a message every 30 seconds or it will close the websocket.
@@ -108,7 +109,9 @@ func uploadFileWithWebsocket(ws *websocket.Conn, filePath string) error {
 		if err != nil && err != io.EOF {
 			return err
 		}
-		ws.WriteMessage(websocket.BinaryMessage, buffer)
+		if err := ws.WriteMessage(websocket.BinaryMessage, buffer); err != nil {
+			return err
+		}
 	}
 	return nil
 }
