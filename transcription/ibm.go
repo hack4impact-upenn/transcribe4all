@@ -34,8 +34,8 @@ type ibmWordTimestamp []interface{}
 
 // TranscribeWithIBM transcribes a given audio file using the IBM Watson
 // Speech To Text API
-func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) (IBMResult, error) {
-	result := IBMResult{}
+func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) (*IBMResult, error) {
+	result := new(IBMResult)
 
 	url := "wss://stream.watsonplatform.net/speech-to-text/api/v1/recognize?model=en-US_BroadbandModel"
 	header := http.Header{}
@@ -44,7 +44,7 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 	dialer := websocket.DefaultDialer
 	ws, _, err := dialer.Dial(url, header)
 	if err != nil {
-		return result, err
+		return nil, err
 	}
 	defer ws.Close()
 
@@ -59,10 +59,10 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 		"inactivity_timeout": -1,
 	}
 	if err = ws.WriteJSON(requestArgs); err != nil {
-		return result, err
+		return nil, err
 	}
 	if err = uploadFileWithWebsocket(ws, filePath); err != nil {
-		return result, err
+		return nil, err
 	}
 
 	ws.WriteMessage(websocket.BinaryMessage, []byte{}) // write empty message to indicate end of uploading file
@@ -78,7 +78,7 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 	for {
 		err := ws.ReadJSON(&result)
 		if err != nil {
-			return result, err
+			return nil, err
 		}
 		if len(result.Results) > 0 {
 			return result, nil
