@@ -9,10 +9,12 @@
      <!-- Site Properties -->
     <title>Transcribe4All</title>
     <link rel="stylesheet" type="text/css" href="static/semantic/semantic.min.css">
-    <link rel="icon" type="image/png" href="static/logo.png" />
+    <link rel="stylesheet" type="text/css" href="static/semantic-tokenfield/semantic-tokenfield.min.css">
+    <link rel="icon" type="image/png" href="static/logo.png"/>
 
     <script src="static/jquery-1.12.0.min.js"></script>
     <script src="static/semantic/semantic.min.js"></script>
+    <script src="static/semantic-tokenfield/semantic-tokenfield.min.js"></script>
 
     <style type="text/css">
       body {
@@ -40,6 +42,7 @@
             }
           })
         ;
+        // $('#emails').tokenfield();
       })
     ;
     </script>
@@ -64,13 +67,13 @@
         <div class="field">
           <div class="ui left icon input">
             <i class="mail icon"></i>
-            <input type="email" name="emails" placeholder="E-mail addresses" multiple>
+            <input type="email" id="emails" name="emails" placeholder="E-mail addresses" multiple>
           </div>
         </div>
         <div class="field">
           <div class="ui left icon input">
             <i class="search icon"></i>
-            <input type="text" name="words" placeholder="Search words" multiple>
+            <input type="text" id="words" name="words" placeholder="Search words" multiple>
           </div>
         </div>
       </div>
