@@ -2,6 +2,7 @@ package transcription
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/base64"
 	"io"
 	"log"
@@ -29,8 +30,8 @@ type ibmAlternativesField struct {
 	Transcript        string              `json:"transcript"`
 	Timestamps        []ibmWordTimestamp  `json:"timestamps"`
 }
-type ibmWordConfidence []interface{}
-type ibmWordTimestamp []interface{}
+type ibmWordConfidence [2]interface{}
+type ibmWordTimestamp [3]interface{}
 
 // TranscribeWithIBM transcribes a given audio file using the IBM Watson
 // Speech To Text API
@@ -131,4 +132,13 @@ func keepConnectionOpen(ws *websocket.Conn, ticker *time.Ticker, quit chan struc
 			return
 		}
 	}
+}
+
+// GetTranscript gets the full transcript from an IBMResult.
+func GetTranscript(res *IBMResult) string {
+	var buffer bytes.Buffer
+	for _, subResult := range res.Results {
+		buffer.WriteString(subResult.Alternatives[0].Transcript)
+	}
+	return buffer.String()
 }
