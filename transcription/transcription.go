@@ -45,9 +45,9 @@ func msgHeaders(from string, to []string, subject string) string {
 	return strings.Join(msgHeaders, "\r\n")
 }
 
-// StartTranscription transcribes a given file using Sphinx.
+// SphinxTranscription transcribes a given file using Sphinx.
 // File name should be in "name.wav" format.
-func StartTranscription(fileName string, command string) (string, error) {
+func SphinxTranscription(fileName string, command string) (string, error) {
 
 	cmd := exec.Command("java", "-jar", command, fileName)
 	_, err := cmd.CombinedOutput()
