@@ -1,3 +1,4 @@
 EmailUsername = ""
 EmailPassword = ""
 TranscriptionServices = ["IBM Watson Speech to Text", "CMU Sphinx"]
+DefaultWords = []
