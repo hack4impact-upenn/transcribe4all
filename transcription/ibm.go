@@ -59,15 +59,19 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 		"interim_results":    false,
 		"inactivity_timeout": -1,
 	}
+
 	if err = ws.WriteJSON(requestArgs); err != nil {
 		return nil, err
 	}
 	log.Debug("Starting transcription using IBM")
+
 	if err = uploadFileWithWebsocket(ws, filePath); err != nil {
 		return nil, err
 	}
 	log.Debugf("Successfully uploaded %s to IBM", filePath)
-	if err = ws.WriteMessage(websocket.BinaryMessage, []byte{}); err != nil { // write empty message to indicate end of uploading file
+
+	// write empty message to indicate end of uploading file
+	if err = ws.WriteMessage(websocket.BinaryMessage, []byte{}); err != nil {
 		return nil, err
 	}
 
