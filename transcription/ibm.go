@@ -65,7 +65,8 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 	if err = uploadFileWithWebsocket(ws, filePath); err != nil {
 		return nil, err
 	}
-	if err = ws.WriteMessage(websocket.BinaryMessage, []byte{}); err != nil { // write empty message to indicate end of uploading file
+	// write empty message to indicate end of uploading file
+	if err = ws.WriteMessage(websocket.BinaryMessage, []byte{}); err != nil {
 		return nil, err
 	}
 	log.Println("File uploaded")
