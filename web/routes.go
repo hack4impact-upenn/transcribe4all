@@ -26,6 +26,11 @@ type transcriptionJobData struct {
 	SearchWords    []string `json:"searchWords"`
 }
 
+type flash struct {
+	Title string
+	Body  string
+}
+
 var routes = []route{
 	route{
 		"add_job",
@@ -59,13 +64,16 @@ var routes = []route{
 	},
 }
 
+// TODO: Flashes is a complete hack. Use real sessions.
+var flashes = []flash{}
+
 // initiateTranscriptionJobHandlerJSON takes a POST request containing a json object,
 // decodes it into a transcriptionJobData struct, and starts a transcription task.
 func initiateTranscriptionJobHandlerJSON(w http.ResponseWriter, r *http.Request) {
-	var jsonData transcriptionJobData
+	jsonData := new(transcriptionJobData)
 
 	// unmarshal from the response body directly into our struct
-	if err := json.NewDecoder(r.Body).Decode(&jsonData); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(jsonData); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -83,6 +91,10 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	id := executer.QueueTask(transcription.MakeIBMTaskFunction(r.FormValue("url"), r.Form["emails"], r.Form["words"]))
 
 	log.Print(w, "Accepted task %d!", id)
+	flashes = append(flashes, flash{
+		Title: "Task Started!",
+		Body:  fmt.Sprintf("Task %s was successfully started. The results will be emailed to you upon completion.", id),
+	})
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -102,6 +114,13 @@ func jobStatusHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func formHandler(w http.ResponseWriter, r *http.Request) {
-	t, _ := template.ParseFiles("templates/form.html")
-	_ = t.Execute(w, transcriptionJobData{})
+	t, err := template.ParseFiles("templates/form.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = t.Execute(w, flashes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	flashes = []flash{}
 }
