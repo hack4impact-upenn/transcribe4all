@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	"github.com/hack4impact/transcribe4all/tasks"
 	"github.com/hack4impact/transcribe4all/transcription"
@@ -79,9 +79,7 @@ func initiateTranscriptionJobHandlerJSON(w http.ResponseWriter, r *http.Request)
 	}
 
 	executer := tasks.DefaultTaskExecuter
-	id := executer.QueueTask(transcription.MakeIBMTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses, jsonData.SearchWords))
-
-	fmt.Fprintf(w, "Accepted task %s!", id)
+	executer.QueueTask(transcription.MakeIBMTaskFunction(jsonData.AudioURL, jsonData.EmailAddresses, jsonData.SearchWords))
 }
 
 // initiateTranscriptionJobHandler takes a POST request from a form,
@@ -90,7 +88,6 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	executer := tasks.DefaultTaskExecuter
 	id := executer.QueueTask(transcription.MakeIBMTaskFunction(r.FormValue("url"), r.Form["emails"], r.Form["words"]))
 
-	log.Print(w, "Accepted task %d!", id)
 	flashes = append(flashes, flash{
 		Title: "Task Started!",
 		Body:  fmt.Sprintf("Task %s was successfully started. The results will be emailed to you upon completion.", id),
