@@ -5,11 +5,11 @@ import (
 	"bytes"
 	"encoding/base64"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"time"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/websocket"
 )
 
@@ -59,17 +59,21 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 		"interim_results":    false,
 		"inactivity_timeout": -1,
 	}
+
 	if err = ws.WriteJSON(requestArgs); err != nil {
 		return nil, err
 	}
+	log.Debug("Starting transcription using IBM")
+
 	if err = uploadFileWithWebsocket(ws, filePath); err != nil {
 		return nil, err
 	}
+	log.Debugf("Successfully uploaded %s to IBM", filePath)
+
 	// write empty message to indicate end of uploading file
 	if err = ws.WriteMessage(websocket.BinaryMessage, []byte{}); err != nil {
 		return nil, err
 	}
-	log.Println("File uploaded")
 
 	// IBM must receive a message every 30 seconds or it will close the websocket.
 	// This code concurrently writes a message every 5 second until returning.
@@ -84,6 +88,7 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 			return nil, err
 		}
 		if len(result.Results) > 0 {
+			log.Debugf("IBM has returned results")
 			return result, nil
 		}
 	}
