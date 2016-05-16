@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/jordan-wright/email"
@@ -80,6 +81,8 @@ func DownloadFileFromURL(url string) (string, error) {
 func filePathFromURL(url string) string {
 	tokens := strings.Split(url, "/")
 	filePath := tokens[len(tokens)-1]
+	// ensure the filePath is unique by appending timestamp
+	filePath = filePath + strconv.Itoa(int(time.Now().UnixNano()))
 	return filePath
 }
 
