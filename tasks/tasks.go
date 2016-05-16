@@ -15,9 +15,9 @@ type Status int
 
 // TaskExecuter executes a series of task functions.
 type TaskExecuter interface {
-	QueueTask(task func(string) error) string
+	QueueTask(task func(string) error, onFailure func(string, string)) string
 	GetTaskStatus(id string) Status
-	completeTask(id string, task func(string) error)
+	completeTask(id string, task func(string) error, onFailure func(string, string))
 }
 
 type concurrentStatusMap struct {
@@ -85,12 +85,12 @@ func NewTaskExecuter() TaskExecuter {
 // QueueTask initializes a new task, taking a generic task function. If the
 // task panics, the panic will be caught. However, if the task launches another
 // goroutine which panics, the panic cannot be caught.
-func (ex *defaultExecuter) QueueTask(task func(string) error) string {
+func (ex *defaultExecuter) QueueTask(task func(string) error, onFailure func(string, string)) string {
 	id := generateID(20)
 	ex.cMap.put(id, INPROGRESS)
 	log.WithField("task", id).
 		Info("Task started")
-	go ex.completeTask(id, task)
+	go ex.completeTask(id, task, onFailure)
 	return id
 }
 
@@ -102,22 +102,24 @@ func (ex *defaultExecuter) GetTaskStatus(id string) Status {
 	return NOTFOUND
 }
 
-func (ex *defaultExecuter) completeTask(id string, task func(string) error) {
+func (ex *defaultExecuter) completeTask(id string, task func(string) error, onFailure func(string, string)) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.WithField("task", id).
 				Error("Task failed")
+			go onFailure(id, "The error message is below. Please check logs for more details."+"\n\n"+"panic occurred")
 			ex.cMap.put(id, FAILURE)
 		}
 	}()
 
 	// Run the task.
 	if err := task(id); err != nil {
-		ex.cMap.put(id, FAILURE)
 		log.WithFields(log.Fields{
 			"task":  id,
 			"error": errors.ErrorStack(err),
 		}).Error("Task failed")
+		go onFailure(id, "The error message is below. Please check logs for more details."+"\n\n"+errors.ErrorStack(err))
+		ex.cMap.put(id, FAILURE)
 		return
 	}
 
