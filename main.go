@@ -27,5 +27,7 @@ func main() {
 	// serve http
 	http.Handle("/", middlewareRouter)
 	http.Handle("/static/", http.FileServer(http.Dir(".")))
-	http.ListenAndServe(":8080", nil)
+	if err := http.ListenAndServe(":8080", nil); err != nil {
+		log.Error(err)
+	}
 }
