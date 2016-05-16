@@ -115,7 +115,7 @@ func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords [
 
 		// TODO: save data to MongoDB and file to Backblaze.
 
-		if err := SendEmail(config.Config.EmailUsername, config.Config.EmailPassword, "smtp.gmail.com", 25, emailAddresses, fmt.Sprintf("IBM Transcription %s Complete", id), transcript); err != nil {
+		if err := SendEmail(config.Config.EmailUsername, config.Config.EmailPassword, "smtp.gmail.com", 25, emailAddresses, fmt.Sprintf("IBM Transcription %s Complete", id), "The transcript is below. It can also be found in the database."+"\n\n"+transcript); err != nil {
 			return errors.Trace(err)
 		}
 
