@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/gob"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -9,6 +10,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
+	"github.com/hack4impact/transcribe4all/config"
 	"github.com/hack4impact/transcribe4all/tasks"
 	"github.com/hack4impact/transcribe4all/transcription"
 )
@@ -64,8 +67,15 @@ var routes = []route{
 	},
 }
 
-// TODO: Flashes is a complete hack. Use real sessions.
-var flashes = []flash{}
+var (
+	store        = sessions.NewCookieStore([]byte(config.Config.SecretKey))
+	flashSession = "flash"
+)
+
+func init() {
+	// register the flash struct with gob so that it can be stored in sessions
+	gob.Register(&flash{})
+}
 
 // initiateTranscriptionJobHandlerJSON takes a POST request containing a json object,
 // decodes it into a transcriptionJobData struct, and starts a transcription task.
@@ -88,10 +98,17 @@ func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	executer := tasks.DefaultTaskExecuter
 	id := executer.QueueTask(transcription.MakeIBMTaskFunction(r.FormValue("url"), r.Form["emails"], r.Form["words"]))
 
-	flashes = append(flashes, flash{
+	session, err := store.Get(r, flashSession)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	session.AddFlash(flash{
 		Title: "Task Started!",
 		Body:  fmt.Sprintf("Task %s was successfully started. The results will be emailed to you upon completion.", id),
 	})
+	session.Save(r, w)
+
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -115,9 +132,17 @@ func formHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	session, err := store.Get(r, flashSession)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	flashes := session.Flashes()
+	session.Save(r, w)
+
 	err = t.Execute(w, flashes)
 	if err != nil {
 		log.Fatal(err)
 	}
-	flashes = []flash{}
 }
