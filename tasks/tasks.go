@@ -7,6 +7,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/juju/errors"
 )
 
 // Status is the status of the task.
@@ -115,7 +116,7 @@ func (ex *defaultExecuter) completeTask(id string, task func(string) error) {
 		ex.cMap.put(id, FAILURE)
 		log.WithFields(log.Fields{
 			"task":  id,
-			"error": err.Error(),
+			"error": errors.ErrorStack(err),
 		}).Error("Task failed")
 		return
 	}

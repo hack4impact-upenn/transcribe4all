@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/BurntSushi/toml"
 	log "github.com/Sirupsen/logrus"
+	"github.com/juju/errors"
 )
 
 // Config is the application-wide config
@@ -16,10 +17,10 @@ func init() {
 	log.Infof("%+v", Config)
 }
 
-//parseConfigFile parses the specified file into a given struct
+// parseConfigFile parses the specified file into a given struct
 func parseConfigFile(config *AppConfig, filename string) error {
 	if _, err := toml.DecodeFile(filename, config); err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	return nil
 }

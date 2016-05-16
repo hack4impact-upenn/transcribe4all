@@ -3,7 +3,6 @@
 package transcription
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,6 +13,7 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/juju/errors"
 
 	"github.com/hack4impact/transcribe4all/config"
 )
@@ -32,7 +32,7 @@ func SendEmail(username string, password string, host string, port int, to []str
 	msg := []byte(msgHeaders(from, to, subject) + "\r\n" + body + "\r\n")
 	addr := host + ":" + strconv.Itoa(port)
 	if err := smtp.SendMail(addr, auth, from, to, msg); err != nil {
-		return err
+		return errors.Trace(err)
 	}
 	return nil
 }
@@ -65,21 +65,21 @@ func DownloadFileFromURL(url string) (string, error) {
 	filePath := filePathFromURL(url)
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	defer file.Close()
 
 	// Get file contents
 	response, err := http.Get(url)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 	defer response.Body.Close()
 
 	// Write the body to file
 	_, err = io.Copy(file, response.Body)
 	if err != nil {
-		return "", err
+		return "", errors.Trace(err)
 	}
 
 	return filePath, nil
@@ -96,7 +96,7 @@ func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords [
 	return func(id string) error {
 		filePath, err := DownloadFileFromURL(audioURL)
 		if err != nil {
-			return err
+			return errors.Trace(err)
 		}
 		defer os.Remove(filePath)
 
@@ -105,7 +105,7 @@ func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords [
 
 		flacPath, err := ConvertAudioIntoFormat(filePath, "flac")
 		if err != nil {
-			return err
+			return errors.Trace(err)
 		}
 		defer os.Remove(flacPath)
 
@@ -114,7 +114,7 @@ func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords [
 
 		ibmResult, err := TranscribeWithIBM(flacPath, config.Config.IBMUsername, config.Config.IBMPassword)
 		if err != nil {
-			return err
+			return errors.Trace(err)
 		}
 		transcript := GetTranscript(ibmResult)
 
@@ -124,7 +124,7 @@ func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords [
 		// TODO: save data to MongoDB and file to Backblaze.
 
 		if err := SendEmail(config.Config.EmailUsername, config.Config.EmailPassword, "smtp.gmail.com", 25, emailAddresses, fmt.Sprintf("IBM Transcription %s Complete", id), transcript); err != nil {
-			return err
+			return errors.Trace(err)
 		}
 
 		log.WithField("task", id).
