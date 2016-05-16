@@ -13,36 +13,28 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/jordan-wright/email"
 	"github.com/juju/errors"
 
 	"github.com/hack4impact/transcribe4all/config"
 )
 
-// SendEmail connects to an email server at host:port, switches to TLS,
-// authenticates on TLS connections using the username and password, and sends
-// an email from address from, to address to, with subject line subject with
-// message body.
+// SendEmail connects to an email server at host:port and sends an email from
+// address from, to address to, with subject line subject with message body.
 func SendEmail(username string, password string, host string, port int, to []string, subject string, body string) error {
-	from := username
 	auth := smtp.PlainAuth("", username, password, host)
-
-	// The msg parameter should be an RFC 822-style email with headers first,
-	// a blank line, and then the message body. The lines of msg should be CRLF
-	// terminated.
-	msg := []byte(msgHeaders(from, to, subject) + "\r\n" + body + "\r\n")
 	addr := host + ":" + strconv.Itoa(port)
-	if err := smtp.SendMail(addr, auth, from, to, msg); err != nil {
+
+	message := email.Email{
+		From:    username,
+		To:      to,
+		Subject: subject,
+		Text:    []byte(body),
+	}
+	if err := message.Send(addr, auth); err != nil {
 		return errors.Trace(err)
 	}
 	return nil
-}
-
-func msgHeaders(from string, to []string, subject string) string {
-	fromHeader := "From: " + from
-	toHeader := "To: " + strings.Join(to, ", ")
-	subjectHeader := "Subject: " + subject
-	msgHeaders := []string{fromHeader, toHeader, subjectHeader}
-	return strings.Join(msgHeaders, "\r\n")
 }
 
 // ConvertAudioIntoFormat converts encoded audio into the required format.
@@ -92,8 +84,8 @@ func filePathFromURL(url string) string {
 }
 
 // MakeIBMTaskFunction returns a task function for transcription using IBM transcription functions.
-func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords []string) func(string) error {
-	return func(id string) error {
+func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords []string) (task func(string) error, onFailure func(string, string)) {
+	task = func(id string) error {
 		filePath, err := DownloadFileFromURL(audioURL)
 		if err != nil {
 			return errors.Trace(err)
@@ -132,4 +124,16 @@ func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords [
 
 		return nil
 	}
+
+	onFailure = func(id string, errMessage string) {
+		err := SendEmail(config.Config.EmailUsername, config.Config.EmailPassword, "smtp.gmail.com", 25, emailAddresses, fmt.Sprintf("IBM Transcription %s Failed", id), errMessage)
+		if err != nil {
+			log.WithField("task", id).
+				Debugf("Could not send error email to %v because of the error %v", emailAddresses, err.Error())
+			return
+		}
+		log.WithField("task", id).
+			Debugf("Sent email to %v", emailAddresses)
+	}
+	return task, onFailure
 }
