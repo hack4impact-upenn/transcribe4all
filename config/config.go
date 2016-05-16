@@ -32,4 +32,5 @@ type AppConfig struct {
 	IBMUsername   string
 	IBMPassword   string
 	Debug         bool
+	SecretKey     string
 }
