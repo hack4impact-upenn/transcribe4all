@@ -38,4 +38,11 @@ dependencies {
 }
 apply plugin: 'application'
 
-mainClassName = 'TranscriberDemo'
+mainClassName = 'Transcriber'
+
+run {
+  classpath = sourceSets.main.runtimeClasspath
+    if (project.hasProperty('myargs')) {
+        args(myargs.split(','))
+    }
+}

@@ -13,7 +13,9 @@ import (
 	"strings"
 )
 
-type transcription struct {
+//Transcription contains the transcription text and metadata of a transcription
+//job
+type Transcription struct {
 	TextTranscription string
 	Metadata          string
 }
@@ -47,26 +49,24 @@ func msgHeaders(from string, to []string, subject string) string {
 
 // SphinxTranscription transcribes a given file using Sphinx.
 // File name should be in "name.wav" format.
-func SphinxTranscription(fileName string, command string) (string, error) {
-
-	cmd := exec.Command("java", "-jar", command, fileName)
-	_, err := cmd.CombinedOutput()
-	if err != nil {
-		return "", err
+func SphinxTranscription(fileName string) (Transcription, error) {
+	var jsonData Transcription
+	cmd := exec.Command(" ./gradlew run '-Pmyargs=files/" + fileName + "'")
+	if err := cmd.Run(); err != nil {
+		return jsonData, err
 	}
-	outputFileName := "/Sphinx/files/" + fileName + "-json.txt"
-
-	// //once json is sent somewhere, capture the output
-	// if _, err := transcriptionOutputToStruct(outputFileName); err != nil {
-	// 	return err
-	// }
-	return outputFileName, nil
+	outputFile := "/Sphinx/files/" + fileName + "-json.txt"
+	result, err := transcriptionOutputToStruct(outputFile)
+	if err != nil {
+		return jsonData, err
+	}
+	return result, nil
 }
 
 // transcriptionOutputToStruct takes a text file and reads its input
 // into a Go struct
-func transcriptionOutputToStruct(fileName string) (transcription, error) {
-	var jsonData transcription
+func transcriptionOutputToStruct(fileName string) (Transcription, error) {
+	var jsonData Transcription
 	file, err := os.Open(fileName)
 	r := bufio.NewReader(file)
 
@@ -84,7 +84,7 @@ func transcriptionOutputToStruct(fileName string) (transcription, error) {
 	sText := string(bytesText[:nText])
 	sMeta := string(bytesText[:nMeta])
 
-	jsonData = transcription{TextTranscription: sText, Metadata: sMeta}
+	jsonData = Transcription{TextTranscription: sText, Metadata: sMeta}
 	return jsonData, nil
 }
 
