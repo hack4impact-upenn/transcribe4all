@@ -4,8 +4,7 @@ package transcription
 
 import (
 	"bufio"
-	"bytes"
-	"fmt"
+	"encoding/json"
 	"io"
 	"net/http"
 	"net/smtp"
@@ -58,41 +57,31 @@ func SphinxTranscription(fileName string) (Transcription, error) {
 		return result, err
 	}
 	cmd := exec.Command("bash", p+"/gradlew", "run", "-Pmyargs=files/"+fileName)
-	cmd.Stdout = os.Stdout
 	if err := cmd.Run(); err != nil {
 		return result, err
 	}
-	outputFile := "/Sphinx/files/" + fileName + "-json.txt"
-	result, err = transcriptionOutputToStruct(outputFile)
+	outputFile := p + "files/" + fileName + "-json.txt"
+	result, err = outputToStruct(outputFile)
 	if err != nil {
 		return result, err
 	}
-	fmt.Print(result)
 	return result, nil
 }
 
-// transcriptionOutputToStruct takes a text file and reads its input
+// outputToStruct takes a text file with json data and reads its input
 // into a Go struct
-func transcriptionOutputToStruct(fileName string) (Transcription, error) {
+func outputToStruct(fileName string) (Transcription, error) {
 	var jsonData Transcription
 	file, err := os.Open(fileName)
-	r := bufio.NewReader(file)
-
-	bytesText, err := r.ReadBytes('\n')
 	if err != nil {
 		return jsonData, err
 	}
-	bytesMeta, err := r.ReadBytes('\n')
-	if err != nil || err != io.EOF {
+	r := bufio.NewReader(file)
+	dec := json.NewDecoder(r)
+	err = dec.Decode(&jsonData)
+	if err != nil {
 		return jsonData, err
 	}
-
-	nText := bytes.IndexByte(bytesText, 0)
-	nMeta := bytes.IndexByte(bytesMeta, 0)
-	sText := string(bytesText[:nText])
-	sMeta := string(bytesText[:nMeta])
-
-	jsonData = Transcription{TextTranscription: sText, Metadata: sMeta}
 	return jsonData, nil
 }
 
