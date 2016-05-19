@@ -5,6 +5,7 @@ package transcription
 import (
 	"bufio"
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
 	"net/smtp"
@@ -48,18 +49,25 @@ func msgHeaders(from string, to []string, subject string) string {
 }
 
 // SphinxTranscription transcribes a given file using Sphinx.
-// File name should be in "name.wav" format.
+// File name should not include the type extension.
 func SphinxTranscription(fileName string) (Transcription, error) {
-	var jsonData Transcription
-	cmd := exec.Command(" ./gradlew run '-Pmyargs=files/" + fileName + "'")
+	var result Transcription
+	os.Chdir("./Sphinx")
+	p, err := os.Getwd()
+	if err != nil {
+		return result, err
+	}
+	cmd := exec.Command("bash", p+"/gradlew", "run", "-Pmyargs=files/"+fileName)
+	cmd.Stdout = os.Stdout
 	if err := cmd.Run(); err != nil {
-		return jsonData, err
+		return result, err
 	}
 	outputFile := "/Sphinx/files/" + fileName + "-json.txt"
-	result, err := transcriptionOutputToStruct(outputFile)
+	result, err = transcriptionOutputToStruct(outputFile)
 	if err != nil {
-		return jsonData, err
+		return result, err
 	}
+	fmt.Print(result)
 	return result, nil
 }
 
