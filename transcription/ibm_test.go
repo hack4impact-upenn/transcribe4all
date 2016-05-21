@@ -2,48 +2,79 @@ package transcription
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"os"
 	"testing"
 
-	"bufio"     // mock
-	mockos "os" // mock
-
-	"github.com/gorilla/websocket" // mock
-
-	"github.com/golang/mock/gomock"
+	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestTranscribeWithIBM(t *testing.T) {
 	assert := assert.New(t)
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	// Setup the mock package
-	websocket.MOCK().SetController(ctrl)
-	mockos.MOCK().SetController(ctrl)
-	bufio.MOCK().SetController(ctrl)
-
-	mockWS := new(websocket.Conn)
-	mockFile := new(mockos.File)
-	mockReader := new(bufio.Reader)
-
-	websocket.DefaultDialer.EXPECT().Dial(gomock.Any(), gomock.Any()).Return(mockWS, nil, nil).Times(1)
-	mockWS.EXPECT().WriteJSON(gomock.Any()).MinTimes(1)
-	mockos.EXPECT().Open("file.flac").Times(1).Return(mockFile, nil).Times(1)
-	bufio.EXPECT().NewReader(mockFile).Return(mockReader).Times(1)
-	mockReader.EXPECT().Read(gomock.Any()).Return(0, nil).Times(1)
-	mockWS.EXPECT().WriteMessage(websocket.BinaryMessage, gomock.Any()).MinTimes(1)
-	mockWS.EXPECT().ReadJSON(gomock.Any()).Do(func(res **IBMResult) {
-		(*res).Results = []ibmResultField{
-			ibmResultField{},
-			ibmResultField{},
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		upgrader := websocket.Upgrader{
+			ReadBufferSize:  1024,
+			WriteBufferSize: 1024,
 		}
-	}).Times(1)
-	mockWS.EXPECT().Close().Times(1) // could run many times
+		conn, err := upgrader.Upgrade(w, req, nil)
+		if err != nil {
+			http.Error(w, fmt.Sprintf("cannot upgrade: %v", err), http.StatusInternalServerError)
+		}
+		mt, p, err := conn.ReadMessage()
+		if err != nil {
+			return
+		}
+		conn.WriteMessage(mt, []byte("hello "+string(p)))
+	}))
+	u, _ := url.Parse(srv.URL)
+	u.Scheme = "ws"
 
-	_, err := TranscribeWithIBM("file.flac", "", "")
+	expectedRes := new(IBMResult)
+	file, _ := os.Open("test.json")
+	json.NewDecoder(file).Decode(expectedRes)
+
+	tmpfile, _ := ioutil.TempFile("", "file.flac")
+	defer os.Remove(tmpfile.Name())
+	res, err := TranscribeWithIBM(tmpfile.Name(), IBMConfig{
+		URL: u.String(),
+	})
 	assert.NoError(err)
+	assert.Equal(expectedRes, res)
+
+	// mockWS := new(mocks.WSConn)
+	// mockDialer := new(mocks.WSDialer)
+	// expectedResultField := []ibmResultField{}
+	//
+	// // Create a temporary file
+	// tmpfile, _ := ioutil.TempFile("", "file.flac")
+	// defer os.Remove(tmpfile.Name()) // teardown
+	//
+	// mockDialer.On("Dial", mock.AnythingOfType("string"), mock.AnythingOfType("http.Header")).Return(mockWS, nil, nil).Once()
+	// mockWS.On("WriteJSON", mock.Anything).Return().Twice()
+	//
+	// mockWS.On("WriteMessage", websocket.BinaryMessage, mock.AnythingOfType("[]byte{}")).Return().Once()
+	// mockWS.On("ReadJSON", mock.Anything).Run(func(args mock.Arguments) {
+	// 	result := args.Get(0).(*IBMResult)
+	// 	result.Results = expectedResultField
+	// }).Return(nil).Once()
+	// mockWS.On("Close").Return().Once()
+	//
+	// var TestIBMTranscriber = &IBMTranscriber{
+	// 	dialer: mockDialer,
+	// }
+	//
+	// res, err := TestIBMTranscriber.Transcribe(tmpfile.Name(), "", "")
+	// assert.NoError(err)
+	// assert.Equal(expectedResultField, res.Results)
+	//
+	// mockDialer.AssertExpectations(t)
+	// mockWS.AssertExpectations(t)
+
 }
 
 func TestGetTranscript(t *testing.T) {

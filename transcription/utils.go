@@ -107,7 +107,7 @@ func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords [
 		log.WithField("task", id).
 			Debugf("Converted file %s to %s", filePath, flacPath)
 
-		ibmResult, err := TranscribeWithIBM(flacPath, config.Config.IBMUsername, config.Config.IBMPassword)
+		ibmResult, err := DefaultIBMTranscriber.Transcribe(flacPath, config.Config.IBMUsername, config.Config.IBMPassword)
 		if err != nil {
 			return errors.Trace(err)
 		}

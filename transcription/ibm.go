@@ -34,17 +34,23 @@ type ibmAlternativesField struct {
 type ibmWordConfidence [2]interface{}
 type ibmWordTimestamp [3]interface{}
 
-// TranscribeWithIBM transcribes a given audio file using the IBM Watson
-// Speech To Text API
-func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) (*IBMResult, error) {
+// 	url := "wss://stream.watsonplatform.net/speech-to-text/api/v1/recognize?model=en-US_BroadbandModel"
+
+type IBMConfig struct {
+	Username string
+	Password string
+	URL      string
+}
+
+// TranscribeWithIBM transcribes a given audio file using the IBM Watson Speech
+// To Text API
+func TranscribeWithIBM(filePath string, config IBMConfig) (*IBMResult, error) {
 	result := new(IBMResult)
 
-	url := "wss://stream.watsonplatform.net/speech-to-text/api/v1/recognize?model=en-US_BroadbandModel"
 	header := http.Header{}
-	header.Set("Authorization", "Basic "+basicAuth(IBMUsername, IBMPassword))
+	header.Set("Authorization", "Basic "+basicAuth(config.Username, config.Password))
 
-	dialer := websocket.DefaultDialer
-	ws, _, err := dialer.Dial(url, header)
+	ws, _, err := websocket.DefaultDialer.Dial(config.URL, header)
 	if err != nil {
 		return nil, errors.Trace(err)
 	}
