@@ -43,7 +43,7 @@ SecretKey = ""
 
 * Supply your [Backblaze](https://www.backblaze.com/b2/cloud-storage.html) credentials to store audio files in the cloud after transcription is complete. [Or leave empty.]
 * Set `Debug` to `true` if you want extra verbose log messages.
-* Supply email credentials so that the app can email users when transcription is successful or fails. [Or leave empty.]
+* Supply email credentials so that the app can email users when transcription is complete. [Or leave empty.]
 * Supply your [IBM Speech-To-Text](http://www.ibm.com/watson/developercloud/speech-to-text.html) credentials in order to transcribe audio files using the IBM Watson Speech-To-Text API.
 * Supply your [MongoDB](https://www.mongodb.com/) instance url to store transcription information (such as timestamps, confidence, and keywords).
 * Set `SecretKey` to a random string. You can generate one [here](http://randomkeygen.com/).
@@ -57,7 +57,7 @@ $ ./transcribe4all
 
 ## How to use the app
 
-1. Navigate to the app's index page at http://localhost:8080 (substitute 8080 for the port).
+1. Navigate to the app's index page at http://localhost:8080 (substitute 8080 for the port you set).
 2. Enter the url of the audio file.
 3. Enter a comma-separated list of all the email addresses which should be notified when transcription is complete.
 4. Enter a comma-separated list of all keywords to listen for in the audio.
