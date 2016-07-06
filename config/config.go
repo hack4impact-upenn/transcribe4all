@@ -33,6 +33,8 @@ type AppConfig struct {
 	Debug                   bool
 	EmailUsername           string
 	EmailPassword           string
+	EmailSMTPServer         string
+	EmailPort               int
 	IBMUsername             string
 	IBMPassword             string
 	MongoURL                string

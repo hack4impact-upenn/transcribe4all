@@ -215,24 +215,28 @@ func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords [
 		}
 		transcription := GetTranscription(ibmResults)
 
-		audioURL, err := UploadFileToBackblaze(filePath, config.Config.BackblazeAccountID, config.Config.BackblazeApplicationKey, config.Config.BackblazeBucket)
-		if err != nil {
-			return errors.Trace(err)
-		}
-		transcription.AudioURL = audioURL
-
-		log.WithField("task", id).
-			Debugf("Uploaded %s to backblaze", filePath)
-
-		if err := WriteToMongo(transcription, config.Config.MongoURL); err != nil {
-			return errors.Trace(err)
+		if len(config.Config.BackblazeAccountID) > 0 {
+			audioURL, err := UploadFileToBackblaze(filePath, config.Config.BackblazeAccountID, config.Config.BackblazeApplicationKey, config.Config.BackblazeBucket)
+			if err != nil {
+				return errors.Trace(err)
+			}
+			transcription.AudioURL = audioURL
+			log.WithField("task", id).
+				Debugf("Uploaded %s to backblaze", filePath)
 		}
 
-		log.WithField("task", id).
-			Debugf("Wrote to mongo")
+		if len(config.Config.MongoURL) > 0 {
+			if err := WriteToMongo(transcription, config.Config.MongoURL); err != nil {
+				return errors.Trace(err)
+			}
+			log.WithField("task", id).
+				Debugf("Wrote to mongo")
+		}
 
-		if err := SendEmail(config.Config.EmailUsername, config.Config.EmailPassword, "smtp.gmail.com", 587, emailAddresses, fmt.Sprintf("IBM Transcription %s Complete", id), "The transcript is below. It can also be found in the database."+"\n\n"+transcription.Transcript); err != nil {
-			return errors.Trace(err)
+		if len(config.Config.EmailUsername) > 0 {
+			if err := SendEmail(config.Config.EmailUsername, config.Config.EmailPassword, config.Config.EmailSMTPServer, config.Config.EmailPort, emailAddresses, fmt.Sprintf("IBM Transcription %s Complete", id), "The transcript is below. It can also be found in the database."+"\n\n"+transcription.Transcript); err != nil {
+				return errors.Trace(err)
+			}
 		}
 
 		log.WithField("task", id).
