@@ -15,7 +15,7 @@ script:
   # run commands on every package but /vendor/
   - for package in $(go list ./... | grep -v /vendor/); do golint ${package}; done
   - for package in $(go list ./... | grep -v /vendor/); do go vet ${package}; done
-  - make test
+  # - make test
   - go build -v ./...
 
 notifications:
