@@ -1,6 +1,6 @@
 # transcribe4all [![Build Status](https://travis-ci.org/hack4impact/transcribe4all.svg?branch=master)](https://travis-ci.org/hack4impact/transcribe4all) [![GoDoc](https://godoc.org/github.com/hack4impact/transcribe4all?status.svg)](https://godoc.org/github.com/hack4impact/transcribe4all)
 
-transcribe4all is a self-hosted web application for painless speech-to-text transcription of audio files.
+##### transcribe4all is a self-hosted web application for painless speech-to-text transcription of audio files.
 
 ![example1](examples/one.png)
 ![example1](examples/two.png)
