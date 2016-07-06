@@ -1,7 +1,6 @@
 {
 	"ImportPath": "github.com/hack4impact/transcribe4all",
 	"GoVersion": "go1.6",
-	"GodepVersion": "v59",
 	"Packages": [
 		"./..."
 	],
@@ -85,7 +84,27 @@
 		},
 		{
 			"ImportPath": "gopkg.in/kothar/go-backblaze.v0",
-			"Rev": "a643a0dd6376b3c838b3a241a0479ada30c46329"
+			"Rev": "1965d4d011b96421ace094c562df6eeaa44e8c70"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2",
+			"Comment": "r2016.02.04-1-gb6e2fa3",
+			"Rev": "b6e2fa371e64216a45e61072a96d4e3859f169da"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/bson",
+			"Comment": "r2016.02.04-1-gb6e2fa3",
+			"Rev": "b6e2fa371e64216a45e61072a96d4e3859f169da"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/sasl",
+			"Comment": "r2016.02.04-1-gb6e2fa3",
+			"Rev": "b6e2fa371e64216a45e61072a96d4e3859f169da"
+		},
+		{
+			"ImportPath": "gopkg.in/mgo.v2/internal/scram",
+			"Comment": "r2016.02.04-1-gb6e2fa3",
+			"Rev": "b6e2fa371e64216a45e61072a96d4e3859f169da"
 		}
 	]
 }

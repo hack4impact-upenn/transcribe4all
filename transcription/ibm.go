@@ -141,11 +141,37 @@ func keepConnectionOpen(ws *websocket.Conn, ticker *time.Ticker, quit chan struc
 	}
 }
 
-// GetTranscript gets the full transcript from an IBMResult.
-func GetTranscript(res *IBMResult) string {
-	var buffer bytes.Buffer
+// GetTranscription gets the full transcript from an IBMResult.
+func GetTranscription(res *IBMResult) *Transcription {
+	timestamps := []Timestamp{}
+	confidences := []Confidence{}
+
+	var transcriptBuffer bytes.Buffer
 	for _, subResult := range res.Results {
-		buffer.WriteString(subResult.Alternatives[0].Transcript)
+		bestHypothesis := subResult.Alternatives[0]
+		transcriptBuffer.WriteString(bestHypothesis.Transcript)
+		for _, timestamp := range bestHypothesis.Timestamps {
+			timestamps = append(timestamps, Timestamp{
+				Word:      timestamp[0].(string),
+				StartTime: timestamp[1].(float64),
+				EndTime:   timestamp[2].(float64),
+			})
+		}
+		for _, confidence := range bestHypothesis.WordConfidence {
+			confidences = append(confidences, Confidence{
+				Word:  confidence[0].(string),
+				Score: confidence[1].(float64),
+			})
+		}
 	}
-	return buffer.String()
+
+	transcription := &Transcription{
+		Transcript:  transcriptBuffer.String(),
+		CompletedAt: time.Now(),
+		Metadata: Metadata{
+			Timestamps:  timestamps,
+			Confidences: confidences,
+		},
+	}
+	return transcription
 }
