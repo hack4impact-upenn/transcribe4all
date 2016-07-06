@@ -22,8 +22,9 @@ type IBMResult struct {
 	Results     []ibmResultField `json:"results"`
 }
 type ibmResultField struct {
-	Alternatives []ibmAlternativesField `json:"alternatives"`
-	Final        bool                   `json:"final"`
+	Alternatives []ibmAlternativesField        `json:"alternatives"`
+	KeywordMap   map[string][]ibmKeywordResult `json:"keywords_result"`
+	Final        bool                          `json:"final"`
 }
 type ibmAlternativesField struct {
 	WordConfidence    []ibmWordConfidence `json:"word_confidence"`
@@ -34,9 +35,16 @@ type ibmAlternativesField struct {
 type ibmWordConfidence [2]interface{}
 type ibmWordTimestamp [3]interface{}
 
+type ibmKeywordResult struct {
+	Word       string  `json:"normalized_text"`
+	StartTime  float64 `json:"start_time"`
+	EndTime    float64 `json:"end_time"`
+	Confidence float64 `json:"confidence"`
+}
+
 // TranscribeWithIBM transcribes a given audio file using the IBM Watson
 // Speech To Text API
-func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) (*IBMResult, error) {
+func TranscribeWithIBM(filePath string, searchWords []string, IBMUsername string, IBMPassword string) (*IBMResult, error) {
 	result := new(IBMResult)
 
 	url := "wss://stream.watsonplatform.net/speech-to-text/api/v1/recognize?model=en-US_BroadbandModel"
@@ -59,6 +67,8 @@ func TranscribeWithIBM(filePath string, IBMUsername string, IBMPassword string) 
 		"profanity_filter":   false,
 		"interim_results":    false,
 		"inactivity_timeout": -1,
+		"keywords":           searchWords,
+		"keywords_threshold": 0.5,
 	}
 
 	if err = ws.WriteJSON(requestArgs); err != nil {
@@ -142,36 +152,41 @@ func keepConnectionOpen(ws *websocket.Conn, ticker *time.Ticker, quit chan struc
 }
 
 // GetTranscription gets the full transcript from an IBMResult.
-func GetTranscription(res *IBMResult) *Transcription {
-	timestamps := []Timestamp{}
-	confidences := []Confidence{}
+func GetTranscription(results []*IBMResult) *Transcription {
+	timestamps := []timestamp{}
+	confidences := []confidence{}
+	keywords := []ibmKeywordResult{}
 
 	var transcriptBuffer bytes.Buffer
-	for _, subResult := range res.Results {
-		bestHypothesis := subResult.Alternatives[0]
-		transcriptBuffer.WriteString(bestHypothesis.Transcript)
-		for _, timestamp := range bestHypothesis.Timestamps {
-			timestamps = append(timestamps, Timestamp{
-				Word:      timestamp[0].(string),
-				StartTime: timestamp[1].(float64),
-				EndTime:   timestamp[2].(float64),
-			})
-		}
-		for _, confidence := range bestHypothesis.WordConfidence {
-			confidences = append(confidences, Confidence{
-				Word:  confidence[0].(string),
-				Score: confidence[1].(float64),
-			})
+	for _, result := range results {
+		for _, subResult := range result.Results {
+			bestHypothesis := subResult.Alternatives[0]
+			transcriptBuffer.WriteString(bestHypothesis.Transcript)
+			for _, ibmTimestamp := range bestHypothesis.Timestamps {
+				timestamps = append(timestamps, timestamp{
+					Word:      ibmTimestamp[0].(string),
+					StartTime: ibmTimestamp[1].(float64),
+					EndTime:   ibmTimestamp[2].(float64),
+				})
+			}
+			for _, ibmConfidence := range bestHypothesis.WordConfidence {
+				confidences = append(confidences, confidence{
+					Word:  ibmConfidence[0].(string),
+					Score: ibmConfidence[1].(float64),
+				})
+			}
+			for _, ibmKeywordSlice := range subResult.KeywordMap {
+				keywords = append(keywords, ibmKeywordSlice...)
+			}
 		}
 	}
 
 	transcription := &Transcription{
 		Transcript:  transcriptBuffer.String(),
 		CompletedAt: time.Now(),
-		Metadata: Metadata{
-			Timestamps:  timestamps,
-			Confidences: confidences,
-		},
+		Timestamps:  timestamps,
+		Confidences: confidences,
+		Keywords:    keywords,
 	}
 	return transcription
 }

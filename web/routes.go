@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -96,7 +97,10 @@ func initiateTranscriptionJobHandlerJSON(w http.ResponseWriter, r *http.Request)
 // decodes it into a transcriptionJobData struct, and starts a transcription task.
 func initiateTranscriptionJobHandler(w http.ResponseWriter, r *http.Request) {
 	executer := tasks.DefaultTaskExecuter
-	id := executer.QueueTask(transcription.MakeIBMTaskFunction(r.FormValue("url"), r.Form["emails"], r.Form["words"]))
+	emails := strings.Split(r.FormValue("emails"), ",")
+	words := strings.Split(r.FormValue("words"), ",")
+	log.Println(emails, words, len(emails), len(words))
+	id := executer.QueueTask(transcription.MakeIBMTaskFunction(r.FormValue("url"), emails, words))
 
 	session, err := store.Get(r, flashSession)
 	if err != nil {

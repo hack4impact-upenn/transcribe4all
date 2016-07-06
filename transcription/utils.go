@@ -87,7 +87,7 @@ func DownloadFileFromURL(url string) (string, error) {
 func filePathFromURL(url string) string {
 	tokens := strings.Split(url, "/")
 	filePath := tokens[len(tokens)-1]
-	filePath = strings.Split(filePath, ".")[0]
+	filePath = strings.Split(filePath, "?")[0]
 
 	// ensure the filePath is unique by appending timestamp
 	filePath = filePath + strconv.Itoa(int(time.Now().UnixNano()))
@@ -116,13 +116,13 @@ func SplitWavFile(wavFilePath string) ([]string, error) {
 	chunkLengthInSeconds := 2968
 	names := make([]string, numChunks)
 	for i := 0; i < numChunks; i++ {
+		startingSecond := i * chunkLengthInSeconds
 		// 5 seconds of redundancy for each chunk after the first
-		startingSecond := i*chunkLengthInSeconds - (i-1)*5
+		if i > 0 {
+			startingSecond -= 5
+		}
 		newFilePath := strconv.Itoa(i) + "_" + wavFilePath
 		if err := extractAudioSegment(wavFilePath, newFilePath, startingSecond, chunkLengthInSeconds); err != nil {
-			return []string{}, errors.Trace(err)
-		}
-		if _, err := ConvertAudioIntoFormat(newFilePath, "flac"); err != nil {
 			return []string{}, errors.Trace(err)
 		}
 		names[i] = newFilePath
@@ -154,7 +154,7 @@ func getNumChunks(filePath string) (int, error) {
 
 // extractAudioSegment uses FFMPEG to write a new audio file starting at a given time of a given length
 func extractAudioSegment(inFilePath string, outFilePath string, ss int, t int) error {
-	// -ss: starting second, -t: time in seconds
+	// -ss: starting second, -t: duration in seconds
 	cmd := exec.Command("ffmpeg", "-i", inFilePath, "-ss", strconv.Itoa(ss), "-t", strconv.Itoa(t), outFilePath)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		return errors.New(err.Error() + "\nOutput:\n" + string(out))
@@ -195,23 +195,25 @@ func MakeIBMTaskFunction(audioURL string, emailAddresses []string, searchWords [
 		log.WithField("task", id).
 			Debugf("Split file %s into %d file(s)", filePath, len(wavPaths))
 
-			// for i := 0; i < len(wavPaths); i++ {
-		// wavPath := wavPaths[i]
-		flacPath, err := ConvertAudioIntoFormat(wavPath, "flac")
-		if err != nil {
-			return errors.Trace(err)
-		}
-		defer os.Remove(flacPath)
+		ibmResults := []*IBMResult{}
 
-		log.WithField("task", id).
-			Debugf("Converted file %s to %s", wavPath, flacPath)
+		for _, wavPath := range wavPaths {
+			flacPath, err := ConvertAudioIntoFormat(wavPath, "flac")
+			if err != nil {
+				return errors.Trace(err)
+			}
+			defer os.Remove(flacPath)
 
-		ibmResult, err := TranscribeWithIBM(flacPath, config.Config.IBMUsername, config.Config.IBMPassword)
-		if err != nil {
-			return errors.Trace(err)
+			log.WithField("task", id).
+				Debugf("Converted file %s to %s", wavPath, flacPath)
+
+			ibmResult, err := TranscribeWithIBM(flacPath, searchWords, config.Config.IBMUsername, config.Config.IBMPassword)
+			if err != nil {
+				return errors.Trace(err)
+			}
+			ibmResults = append(ibmResults, ibmResult)
 		}
-		// }
-		transcription := GetTranscription(ibmResult)
+		transcription := GetTranscription(ibmResults)
 
 		audioURL, err := UploadFileToBackblaze(filePath, config.Config.BackblazeAccountID, config.Config.BackblazeApplicationKey, config.Config.BackblazeBucket)
 		if err != nil {
@@ -298,24 +300,18 @@ type Transcription struct {
 	Transcript  string
 	AudioURL    string
 	CompletedAt time.Time
-	Metadata    Metadata
+	Timestamps  []timestamp
+	Confidences []confidence
+	Keywords    []ibmKeywordResult
 }
 
-// Metadata contains timestamps and confidences.
-type Metadata struct {
-	Timestamps  []Timestamp
-	Confidences []Confidence
-}
-
-// Timestamp is when a word occurs.
-type Timestamp struct {
+type timestamp struct {
 	Word      string
 	StartTime float64
 	EndTime   float64
 }
 
-// Confidence is the estimated likelihood (from 0 to 1) that the transribed word is correct.
-type Confidence struct {
+type confidence struct {
 	Word  string
 	Score float64
 }
